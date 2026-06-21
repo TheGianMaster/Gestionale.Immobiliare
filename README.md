@@ -206,7 +206,7 @@ Setup manuale (invece di `create-next-app`) perché la cartella era già non vuo
 ---
 
 ### T-002 — Configurazione .env e dipendenze NPM
-**Stato:** `🔴 Da sviluppare`
+**Stato:** `🟡 Da convalidare`
 **Priorità:** 🔴 Critica
 **Dipendenze:** T-001
 **Sub-README:** `docs/00-SETUP.md`
@@ -215,14 +215,18 @@ Setup manuale (invece di `create-next-app`) perché la cartella era già non vuo
 Crea `.env.example` basato sul template fornito. Installa tutte le dipendenze NPM necessarie al progetto.
 
 **Criteri di accettazione:**
-- [ ] `.env.example` creato con tutte le variabili commentate
-- [ ] Dipendenze installate: `mongoose`, `next-auth`, `bcryptjs`, `@aws-sdk/client-s3`, `resend`, `zod`, `date-fns`, `lucide-react`, `@radix-ui/react-*` (select, dialog, popover)
-- [ ] DevDependencies: `@types/bcryptjs`, `@types/node`
-- [ ] `package.json` con script `dev`, `build`, `start`, `lint`
+- [x] `.env.example` creato con tutte le variabili commentate
+- [x] Dipendenze nel `package.json`: `mongoose`, `next-auth`, `bcryptjs`, `@aws-sdk/client-s3`, `resend`, `zod`, `date-fns`, `lucide-react`, `@radix-ui/react-*` (select, dialog, popover, dropdown, toast, tabs)
+- [x] DevDependencies: `@types/bcryptjs`, `@types/node`, `tsx`
+- [x] `package.json` con script `dev`, `build`, `start`, `lint`, `type-check`, `seed:admin`, `seed:data`
 
-**Note sviluppo:** *(compilare quando Done)*
+**Note sviluppo:**
+Il file `default.env` preesistente era incompleto (mancavano `SEED_ADMIN_*`, commenti, `MONGODB_DB` aveva valore `"test"`, era presente un campo orfano `tokenvalue`). Creato `.env.example` pulito e allineato con la spec in `docs/00-SETUP.md`. Le dipendenze NPM erano già state inserite nel `package.json` durante T-001; il `package.json` è stato aggiornato dall'utente con `next@^16.2.9`. **NOTA:** `npm install` va eseguito dall'utente per materializzare il `node_modules`.
 
-**File toccati:** *(compilare quando Done)*
+**Modifiche utente:** *(da compilare se richieste correzioni)*
+
+**File toccati:**
+- `.env.example` — creato ex novo (il `default.env` preesistente rimane come riferimento legacy)
 
 ---
 
@@ -1329,7 +1333,7 @@ Documentazione di deploy e changelog iniziale.
 
 | Fase | Ticket | Stato |
 |------|--------|-------|
-| Fase 0 - Setup | T-001 🟡, T-002, T-003, T-004 | 🟡/🔴 |
+| Fase 0 - Setup | T-001 🟡, T-002 🟡, T-003, T-004 | 🟡/🔴 |
 | Fase 1 - Auth | T-010, T-011, T-012, T-013 | 🔴 Da sviluppare |
 | Fase 2 - Database | T-020..T-027 | 🔴 Da sviluppare |
 | Fase 3 - Layout | T-030, T-031, T-032 | 🔴 Da sviluppare |
