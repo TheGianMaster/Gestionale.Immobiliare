@@ -1,0 +1,144 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =============================================
+   DESIGN TOKENS — CSS Custom Properties
+   Fonte di verità: src/styles/palette.ts
+   Completati in T-003 / T-110
+   ============================================= */
+
+:root,
+[data-theme="light"] {
+  /* --- Sfondo e superfici --- */
+  --color-background: #f8f9fa;
+  --color-foreground: #1a1a2e;
+  --color-surface: #ffffff;
+  --color-border: #e2e8f0;
+
+  /* --- Brand primario --- */
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-primary-foreground: #ffffff;
+
+  /* --- Brand secondario --- */
+  --color-secondary: #64748b;
+  --color-secondary-hover: #475569;
+  --color-secondary-foreground: #ffffff;
+
+  /* --- Sidebar --- */
+  --color-sidebar-background: #1e293b;
+  --color-sidebar-foreground: #e2e8f0;
+  --color-sidebar-border: #334155;
+  --color-sidebar-active: #2563eb;
+
+  /* --- Semantici --- */
+  --color-success: #16a34a;
+  --color-warning: #d97706;
+  --color-error: #dc2626;
+  --color-info: #0284c7;
+
+  /* --- Muted --- */
+  --color-muted: #f1f5f9;
+  --color-muted-foreground: #64748b;
+
+  /* --- Border Radius --- */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+
+  /* --- Shadows --- */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+  /* --- Font --- */
+  --font-sans: 'Inter', 'Geist', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Geist Mono', 'Fira Code', monospace;
+
+  /* --- Layout --- */
+  --sidebar-width: 260px;
+  --header-height: 60px;
+}
+
+[data-theme="dark"] {
+  /* --- Sfondo e superfici --- */
+  --color-background: #0f172a;
+  --color-foreground: #f1f5f9;
+  --color-surface: #1e293b;
+  --color-border: #334155;
+
+  /* --- Brand primario --- */
+  --color-primary: #3b82f6;
+  --color-primary-hover: #2563eb;
+  --color-primary-foreground: #ffffff;
+
+  /* --- Brand secondario --- */
+  --color-secondary: #94a3b8;
+  --color-secondary-hover: #cbd5e1;
+  --color-secondary-foreground: #0f172a;
+
+  /* --- Sidebar --- */
+  --color-sidebar-background: #020617;
+  --color-sidebar-foreground: #cbd5e1;
+  --color-sidebar-border: #1e293b;
+  --color-sidebar-active: #3b82f6;
+
+  /* --- Semantici --- */
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-error: #f87171;
+  --color-info: #38bdf8;
+
+  /* --- Muted --- */
+  --color-muted: #1e293b;
+  --color-muted-foreground: #94a3b8;
+}
+
+/* =============================================
+   RESET BASE
+   ============================================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* =============================================
+   UTILITY CLASSES CUSTOM
+   ============================================= */
+
+@layer utilities {
+  /* Scrollbar nascosta (per sidebar e aree scorrevoli) */
+  .scrollbar-hidden {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hidden::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Focus ring accessibile */
+  .focus-ring {
+    @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-background;
+  }
+}
