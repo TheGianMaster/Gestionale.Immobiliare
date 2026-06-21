@@ -1,80 +1,80 @@
 import type { Config } from 'tailwindcss'
 
 const config: Config = {
-  // Specifica i file che contengono classi Tailwind
-  content: [
-    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
-  ],
+  content: ['./src/**/*.{js,ts,jsx,tsx,mdx}'],
 
-  // Supporto dark mode via attributo data-theme
+  // Dark mode via attributo data-theme sul tag <html>
   darkMode: ['class', '[data-theme="dark"]'],
 
   theme: {
     extend: {
-      // Colori mappati su CSS variables (definite in globals.css, palette in T-003/T-110)
+      // ——— COLORI (mappati su CSS variables da globals.css) ———
       colors: {
-        // Colori base
-        background: 'var(--color-background)',
-        foreground: 'var(--color-foreground)',
-        surface: 'var(--color-surface)',
-        border: 'var(--color-border)',
-
-        // Colori brand
-        primary: {
-          DEFAULT: 'var(--color-primary)',
-          hover: 'var(--color-primary-hover)',
-          foreground: 'var(--color-primary-foreground)',
-        },
-        secondary: {
-          DEFAULT: 'var(--color-secondary)',
-          hover: 'var(--color-secondary-hover)',
-          foreground: 'var(--color-secondary-foreground)',
-        },
-
-        // Colori semantici
-        success: 'var(--color-success)',
-        warning: 'var(--color-warning)',
-        error: 'var(--color-error)',
-        info: 'var(--color-info)',
-
-        // Sidebar
-        sidebar: {
-          background: 'var(--color-sidebar-background)',
-          foreground: 'var(--color-sidebar-foreground)',
-          border: 'var(--color-sidebar-border)',
-          active: 'var(--color-sidebar-active)',
-        },
-
-        // Muted
-        muted: {
-          DEFAULT: 'var(--color-muted)',
-          foreground: 'var(--color-muted-foreground)',
-        },
+        brand:             'var(--color-brand)',
+        'brand-hover':     'var(--color-brand-hover)',
+        'brand-light':     'var(--color-brand-light)',
+        'brand-dark':      'var(--color-brand-dark)',
+        bg:                'var(--color-bg)',
+        surface:           'var(--color-surface)',
+        'surface-hover':   'var(--color-surface-hover)',
+        'surface-elevated':'var(--color-surface-elevated)',
+        border:            'var(--color-border)',
+        'border-strong':   'var(--color-border-strong)',
+        'border-focus':    'var(--color-border-focus)',
+        'text-primary':    'var(--color-text-primary)',
+        'text-secondary':  'var(--color-text-secondary)',
+        'text-muted':      'var(--color-text-muted)',
+        'text-on-brand':   'var(--color-text-on-brand)',
+        success:           'var(--color-success)',
+        'success-light':   'var(--color-success-light)',
+        warning:           'var(--color-warning)',
+        'warning-light':   'var(--color-warning-light)',
+        error:             'var(--color-error)',
+        'error-light':     'var(--color-error-light)',
+        info:              'var(--color-info)',
+        'info-light':      'var(--color-info-light)',
       },
 
-      // Font configurato via CSS variable
+      // ——— FONT ———
       fontFamily: {
-        sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
-        mono: ['var(--font-mono)', 'monospace'],
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
       },
 
-      // Border radius dai token
+      // ——— BORDER RADIUS ———
       borderRadius: {
-        sm: 'var(--radius-sm)',
+        sm:   'var(--radius-sm)',
+        md:   'var(--radius-md)',
         DEFAULT: 'var(--radius-md)',
-        md: 'var(--radius-md)',
-        lg: 'var(--radius-lg)',
-        xl: 'var(--radius-xl)',
+        lg:   'var(--radius-lg)',
+        xl:   'var(--radius-xl)',
+        '2xl':'var(--radius-2xl)',
+        full: 'var(--radius-full)',
       },
 
-      // Box shadows dai token
+      // ——— SHADOWS ———
       boxShadow: {
-        sm: 'var(--shadow-sm)',
+        sm:    'var(--shadow-sm)',
+        md:    'var(--shadow-md)',
         DEFAULT: 'var(--shadow-md)',
-        md: 'var(--shadow-md)',
-        lg: 'var(--shadow-lg)',
+        lg:    'var(--shadow-lg)',
+        inner: 'var(--shadow-inner)',
+      },
+
+      // ——— ALTEZZE LAYOUT ———
+      height: {
+        header: 'var(--header-height)',
+      },
+      minHeight: {
+        header: 'var(--header-height)',
+      },
+
+      // ——— LARGHEZZE LAYOUT ———
+      width: {
+        sidebar: 'var(--sidebar-width)',
+      },
+      minWidth: {
+        sidebar: 'var(--sidebar-width)',
       },
     },
   },

@@ -231,7 +231,7 @@ Il file `default.env` preesistente era incompleto (mancavano `SEED_ADMIN_*`, com
 ---
 
 ### T-003 — Palette colori e design tokens
-**Stato:** `🔴 Da sviluppare`
+**Stato:** `🟡 Da convalidare`
 **Priorità:** 🔴 Critica
 **Dipendenze:** T-001
 **Sub-README:** `docs/09-PALETTE.md`
@@ -240,20 +240,27 @@ Il file `default.env` preesistente era incompleto (mancavano `SEED_ADMIN_*`, com
 Crea il sistema di design tokens. File `palette.ts` come FONTE DI VERITÀ per tutti i colori. CSS variables in `globals.css`. TailwindCSS configurato per usare le variabili.
 
 **Criteri di accettazione:**
-- [ ] `src/styles/palette.ts` con tutti i colori nominati
-- [ ] `src/styles/tokens.ts` con spacing, radius, shadows, typography
-- [ ] `src/styles/globals.css` con CSS variables generate dalla palette
-- [ ] `tailwind.config.ts` aggiornato per usare CSS variables
-- [ ] Supporto tema chiaro/scuro (CSS variables dual-theme)
+- [x] `src/styles/palette.ts` con tutti i colori nominati
+- [x] `src/styles/tokens.ts` con spacing, radius, shadows, typography
+- [x] `src/styles/globals.css` con CSS variables generate dalla palette
+- [x] `tailwind.config.ts` aggiornato per usare CSS variables
+- [x] Supporto tema chiaro/scuro (CSS variables dual-theme)
 
-**Note sviluppo:** *(compilare quando Done)*
+**Note sviluppo:**
+Creati `palette.ts` (fonte di verità, colori brand indigo + neutral + semantic + 8 colori eventi calendario) e `tokens.ts` (spacing 4px grid, radius, shadows, z-index, breakpoints, typography). `globals.css` completamente riscritto: importa Inter da Google Fonts, definisce tutte le CSS variables per tema chiaro e scuro, reset base, scrollbar custom, focus ring accessibile. `tailwind.config.ts` aggiornato con tutti i colori/font/radius/shadows mappati su CSS variables. Il tema si controlla tramite `data-theme="dark"` sull'elemento `<html>` (il toggle è previsto in T-110).
 
-**File toccati:** *(compilare quando Done)*
+**Modifiche utente:** *(da compilare se richieste correzioni)*
+
+**File toccati:**
+- `src/styles/palette.ts` — creato
+- `src/styles/tokens.ts` — creato
+- `src/styles/globals.css` — riscritto completo
+- `tailwind.config.ts` — aggiornato con CSS variables
 
 ---
 
 ### T-004 — Setup connessioni MongoDB multi-cluster
-**Stato:** `🔴 Da sviluppare`
+**Stato:** `🟡 Da convalidare`
 **Priorità:** 🔴 Critica
 **Dipendenze:** T-002
 **Sub-README:** `docs/02-DATABASE.md`
@@ -262,16 +269,25 @@ Crea il sistema di design tokens. File `palette.ts` come FONTE DI VERITÀ per tu
 Configura le connessioni MongoDB. Il progetto usa cluster separati per anagrafiche, eventi e la connessione principale. Implementa il pattern singleton per le connessioni (evita reconnect su ogni API call in dev).
 
 **Criteri di accettazione:**
-- [ ] `src/lib/mongodb.ts` — connessione principale (utenti, notifiche, config)
-- [ ] `src/lib/mongodb-anagrafiche.ts` — cluster `MONGODB_URI_ANAGRAFICHE`
-- [ ] `src/lib/mongodb-eventi.ts` — cluster `MONGODB_URI_EVENTI`
-- [ ] Ogni connessione usa pattern singleton con cache globale (Next.js hot reload safe)
-- [ ] Gestione errori connessione con log chiari
-- [ ] Timeout configurabile via env
+- [x] `src/lib/mongodb.ts` — connessione principale (utenti, notifiche, config)
+- [x] `src/lib/mongodb-anagrafiche.ts` — cluster `MONGODB_URI_ANAGRAFICHE`
+- [x] `src/lib/mongodb-eventi.ts` — cluster `MONGODB_URI_EVENTI`
+- [x] Ogni connessione usa pattern singleton con cache globale (Next.js hot reload safe)
+- [x] Gestione errori connessione con log chiari
+- [x] Timeout configurabile via env (`MONGODB_TIMEOUT_MS`, default 10000ms)
 
-**Note sviluppo:** *(compilare quando Done)*
+**Note sviluppo:**
+`mongodb.ts` usa `mongoose.connect()` con cache `global._mongooseMain` per il cluster principale — riusa la connessione tra hot-reload. I cluster anagrafiche ed eventi usano `mongoose.createConnection()` (connessioni indipendenti) con cache globale separata (`_mongooseAnagrafiche`, `_mongooseEventi`). Gestione errori con `console.error` e re-throw per propagare al chiamante. Aggiunti anche `src/lib/utils.ts` (cn, toSlug, formatData, formatBytes) e `src/lib/encrypt.ts` (hashPassword/comparePassword con pepper) che servono ai ticket successivi. `.env.example` aggiornato con le nuove variabili opzionali.
 
-**File toccati:** *(compilare quando Done)*
+**Modifiche utente:** *(da compilare se richieste correzioni)*
+
+**File toccati:**
+- `src/lib/mongodb.ts` — creato
+- `src/lib/mongodb-anagrafiche.ts` — creato
+- `src/lib/mongodb-eventi.ts` — creato
+- `src/lib/utils.ts` — creato (cn, toSlug, formatData, formatBytes, truncate, sleep)
+- `src/lib/encrypt.ts` — creato (hashPassword, comparePassword con bcrypt + pepper)
+- `.env.example` — aggiunto MONGODB_DB_ANAGRAFICHE, MONGODB_DB_EVENTI, MONGODB_TIMEOUT_MS
 
 ---
 
@@ -1333,7 +1349,7 @@ Documentazione di deploy e changelog iniziale.
 
 | Fase | Ticket | Stato |
 |------|--------|-------|
-| Fase 0 - Setup | T-001 🟡, T-002 🟡, T-003, T-004 | 🟡/🔴 |
+| Fase 0 - Setup | T-001 🟡, T-002 🟡, T-003 🟡, T-004 🟡 | 🟡 |
 | Fase 1 - Auth | T-010, T-011, T-012, T-013 | 🔴 Da sviluppare |
 | Fase 2 - Database | T-020..T-027 | 🔴 Da sviluppare |
 | Fase 3 - Layout | T-030, T-031, T-032 | 🔴 Da sviluppare |
