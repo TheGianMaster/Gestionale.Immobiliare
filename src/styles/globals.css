@@ -1,3 +1,6 @@
+/* ——— FONT — deve stare PRIMA di tutto il resto ——— */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 /* =============================================
    Generato dalla palette in src/styles/palette.ts
    Non modificare i valori direttamente qui:
@@ -7,9 +10,6 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* ——— FONT ——— */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 /* =============================================
    TEMA CHIARO (default)
