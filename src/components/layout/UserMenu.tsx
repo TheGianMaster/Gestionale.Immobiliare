@@ -56,8 +56,8 @@ export function UserMenu({ nome, cognome, email, ruolo }: UserMenuProps) {
       <button
         onClick={() => setAperto((v) => !v)}
         className={cn(
-          'flex items-center gap-2 px-2 py-1.5 rounded-lg text-sm transition-colors',
-          'hover:bg-surface-hover text-text-primary',
+          'flex items-center gap-2 px-2 py-1.5 rounded-lg text-sm transition-all duration-[var(--duration-fast)]',
+          'hover:bg-surface-hover text-text-primary hover:scale-[1.02]',
           aperto && 'bg-surface-hover'
         )}
         aria-expanded={aperto}
@@ -136,7 +136,7 @@ export function UserMenu({ nome, cognome, email, ruolo }: UserMenuProps) {
           <div className="py-1">
             {/* Profilo — WIP */}
             <button
-              className="w-full flex items-center gap-3 px-4 py-2 text-sm text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors text-left"
+              className="w-full flex items-center gap-3 px-4 py-2 text-sm text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-all duration-[var(--duration-fast)] text-left hover:translate-x-0.5"
               role="menuitem"
               disabled
               title="Coming soon"
@@ -157,7 +157,7 @@ export function UserMenu({ nome, cognome, email, ruolo }: UserMenuProps) {
           <div className="py-1">
             <button
               onClick={() => signOut({ callbackUrl: '/login' })}
-              className="w-full flex items-center gap-3 px-4 py-2 text-sm transition-colors text-left"
+              className="w-full flex items-center gap-3 px-4 py-2 text-sm transition-all duration-[var(--duration-fast)] text-left hover:bg-surface-hover hover:translate-x-0.5"
               style={{ color: 'var(--color-error)' }}
               onMouseEnter={(e) =>
                 (e.currentTarget.style.backgroundColor = 'var(--color-error-light)')

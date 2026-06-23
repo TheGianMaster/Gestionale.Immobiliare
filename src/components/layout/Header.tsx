@@ -109,7 +109,7 @@ export function Header({ user }: HeaderProps) {
       {/* Hamburger — solo mobile/tablet */}
       <button
         onClick={toggleSidebar}
-        className="lg:hidden p-2 rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-colors"
+        className="btn-icon lg:hidden"
         aria-label="Apri menu di navigazione"
       >
         <Menu className="w-5 h-5" aria-hidden="true" />

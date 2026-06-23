@@ -133,9 +133,8 @@ export function NotificationBell() {
       <button
         onClick={() => setAperto((v) => !v)}
         className={cn(
-          'relative p-2 rounded-lg transition-colors',
-          'hover:bg-surface-hover text-text-secondary hover:text-text-primary',
-          aperto && 'bg-surface-hover text-text-primary'
+          'btn-icon relative',
+          aperto && 'bg-surface-hover'
         )}
         aria-label={`Notifiche${nonLette > 0 ? ` — ${nonLette} non lette` : ''}`}
         aria-expanded={aperto}
@@ -191,7 +190,7 @@ export function NotificationBell() {
             {nonLette > 0 && (
               <button
                 onClick={segnaLetteTutte}
-                className="flex items-center gap-1 text-xs text-text-muted hover:text-brand transition-colors"
+                className="flex items-center gap-1 text-xs text-text-muted hover:text-brand transition-all duration-[var(--duration-fast)] hover:scale-105"
                 title="Segna tutte come lette"
               >
                 <CheckCheck className="w-3.5 h-3.5" aria-hidden="true" />
@@ -276,7 +275,7 @@ export function NotificationBell() {
             <Link
               href="/notifiche"
               onClick={() => setAperto(false)}
-              className="flex items-center justify-center py-2.5 text-xs font-medium transition-colors hover:bg-surface-hover"
+              className="flex items-center justify-center py-2.5 text-xs font-medium transition-all duration-[var(--duration-fast)] hover:bg-surface-hover hover:scale-[1.02]"
               style={{ color: 'var(--color-brand)' }}
             >
               Vedi tutte le notifiche

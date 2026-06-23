@@ -43,7 +43,7 @@ function VoceNav({ href, label, icona: Icona, collapsed, onClick }: {
       onClick={onClick}
       title={collapsed ? label : undefined}
       className={cn(
-        'flex items-center gap-3 rounded-lg text-sm font-medium transition-colors',
+        'flex items-center gap-3 rounded-lg text-sm font-medium transition-colors nav-item',
         collapsed ? 'justify-center px-0 py-2' : 'px-3 py-2',
         active
           ? 'text-brand font-semibold'
@@ -71,7 +71,7 @@ function ImpostazioniPopover({ mode, onModeChange, theme, onThemeChange, onClose
   const activeStyle = { backgroundColor: 'var(--color-brand-light)', color: 'var(--color-brand)' }
   return (
     <div
-      className="rounded-xl p-3"
+      className="btn-icon rounded-xl p-3"
       style={{
         backgroundColor: 'var(--color-surface)',
         border: '1px solid var(--color-border)',
@@ -165,7 +165,7 @@ function SidebarContent({ ruolo, anagrafiche, loading, collapsed, mode, onModeCh
           {onClose && (
             <button
               onClick={onClose}
-              className="absolute top-2 right-2 p-1 rounded hover:bg-surface-hover text-text-muted z-10"
+              className="btn-icon absolute top-2 right-2 z-10" style={{ color: 'var(--color-text-muted)' }}
               aria-label="Chiudi menu"
             >
               <X className="w-4 h-4" />
@@ -220,7 +220,7 @@ function SidebarContent({ ruolo, anagrafiche, loading, collapsed, mode, onModeCh
                 onClick={onClose}
                 title={collapsed ? a.nome : undefined}
                 className={cn(
-                  'flex items-center gap-3 rounded-lg text-sm font-medium transition-colors',
+                  'flex items-center gap-3 rounded-lg text-sm font-medium transition-colors nav-item',
                   collapsed ? 'justify-center px-0 py-2' : 'px-3 py-2',
                   active ? 'font-semibold' : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover',
                 )}
@@ -262,7 +262,7 @@ function SidebarContent({ ruolo, anagrafiche, loading, collapsed, mode, onModeCh
           className={cn(
             'w-full flex items-center gap-3 text-sm transition-colors',
             collapsed ? 'justify-center px-0 py-3' : 'px-4 py-3',
-            showSettings ? 'text-brand' : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover',
+            showSettings ? 'text-brand bg-surface-hover' : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover hover:scale-[1.05]',
           )}
           aria-label="Impostazioni sidebar e tema"
           aria-expanded={showSettings}

@@ -115,23 +115,14 @@ function DeleteConfirmModal({
           <button
             onClick={onCancel}
             disabled={loading}
-            className="px-4 py-2 text-sm rounded-lg transition-colors disabled:opacity-50"
-            style={{
-              border: '1px solid var(--color-border)',
-              color: 'var(--color-text-primary)',
-              backgroundColor: 'transparent',
-            }}
+            className="btn-secondary"
           >
             Annulla
           </button>
           <button
             onClick={onConfirm}
             disabled={loading}
-            className="flex items-center gap-2 px-4 py-2 text-sm rounded-lg font-medium transition-colors disabled:opacity-50"
-            style={{
-              backgroundColor: 'var(--color-error)',
-              color: '#fff',
-            }}
+            className="btn-danger"
           >
             {loading && <Loader2 className="w-4 h-4 animate-spin" />}
             Elimina
@@ -270,7 +261,7 @@ export function PreviewTable({ slug, config }: PreviewTableProps) {
         }}
       >
         <div className="overflow-x-auto">
-          <table className="w-full text-sm border-collapse">
+          <table className="w-full text-sm border-collapse animate-fade-in">
             <thead>
               <tr style={{ borderBottom: '1px solid var(--color-border)' }}>
                 {previewColumns.map((col) => (
@@ -312,7 +303,7 @@ export function PreviewTable({ slug, config }: PreviewTableProps) {
                       {!query && (
                         <button
                           onClick={() => router.push(`/anagrafica/${slug}/new`)}
-                          className="text-sm font-medium"
+                          className="btn-ghost"
                           style={{ color: 'var(--color-brand)' }}
                         >
                           + Crea la prima scheda
@@ -360,7 +351,7 @@ export function PreviewTable({ slug, config }: PreviewTableProps) {
                         <button
                           title="Visualizza"
                           onClick={() => router.push(`/anagrafica/${slug}/${scheda._id}/view`)}
-                          className="p-1.5 rounded transition-colors hover:bg-surface-elevated"
+                          className="btn-icon"
                           style={{ color: 'var(--color-text-secondary)' }}
                         >
                           <Eye className="w-4 h-4" />
@@ -369,7 +360,7 @@ export function PreviewTable({ slug, config }: PreviewTableProps) {
                         <button
                           title="Modifica"
                           onClick={() => router.push(`/anagrafica/${slug}/${scheda._id}/edit`)}
-                          className="p-1.5 rounded transition-colors hover:bg-surface-elevated"
+                          className="btn-icon"
                           style={{ color: 'var(--color-text-secondary)' }}
                         >
                           <Pencil className="w-4 h-4" />
@@ -381,7 +372,7 @@ export function PreviewTable({ slug, config }: PreviewTableProps) {
                             setDeleteTarget(scheda)
                             setEliminando(scheda._id)
                           }}
-                          className="p-1.5 rounded transition-colors"
+                          className="btn-icon-danger"
                           style={{ color: 'var(--color-error)' }}
                         >
                           <Trash2 className="w-4 h-4" />
@@ -408,10 +399,7 @@ export function PreviewTable({ slug, config }: PreviewTableProps) {
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className={cn(
-                  'p-1.5 rounded transition-colors',
-                  page === 1 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-surface-hover'
-                )}
+                className="btn-icon disabled:opacity-30"
                 style={{ color: 'var(--color-text-secondary)' }}
                 aria-label="Pagina precedente"
               >
@@ -425,10 +413,7 @@ export function PreviewTable({ slug, config }: PreviewTableProps) {
               <button
                 onClick={() => setPage((p) => Math.min(meta.totalPages, p + 1))}
                 disabled={!meta.hasMore}
-                className={cn(
-                  'p-1.5 rounded transition-colors',
-                  !meta.hasMore ? 'opacity-30 cursor-not-allowed' : 'hover:bg-surface-hover'
-                )}
+                className="btn-icon disabled:opacity-30"
                 style={{ color: 'var(--color-text-secondary)' }}
                 aria-label="Pagina successiva"
               >

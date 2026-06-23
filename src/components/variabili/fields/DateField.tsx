@@ -135,13 +135,13 @@ export function DateField({ variabile, valore, mode, onChange, error }: BaseFiel
             {viewMode === 'day' && (
               <>
                 <div className="flex items-center justify-between mb-2">
-                  <button type="button" onClick={() => setCurrent(subMonths(current, 1))} className="p-1 rounded hover:bg-surface-hover">
+                  <button type="button" onClick={() => setCurrent(subMonths(current, 1))} className="btn-icon">
                     <ChevronLeft className="w-4 h-4" />
                   </button>
                   <button type="button" onClick={() => setViewMode('month')} className="text-sm font-semibold hover:text-brand px-2">
                     {format(current, 'MMMM yyyy', { locale: it })}
                   </button>
-                  <button type="button" onClick={() => setCurrent(addMonths(current, 1))} className="p-1 rounded hover:bg-surface-hover">
+                  <button type="button" onClick={() => setCurrent(addMonths(current, 1))} className="btn-icon">
                     <ChevronRight className="w-4 h-4" />
                   </button>
                 </div>
@@ -181,13 +181,13 @@ export function DateField({ variabile, valore, mode, onChange, error }: BaseFiel
             {viewMode === 'month' && (
               <>
                 <div className="flex items-center justify-between mb-2">
-                  <button type="button" onClick={() => setCurrent(c => new Date(c.getFullYear() - 1, c.getMonth()))} className="p-1 rounded hover:bg-surface-hover">
+                  <button type="button" onClick={() => setCurrent(c => new Date(c.getFullYear() - 1, c.getMonth()))} className="btn-icon">
                     <ChevronLeft className="w-4 h-4" />
                   </button>
                   <button type="button" onClick={() => setViewMode('year')} className="text-sm font-semibold hover:text-brand px-2">
                     {current.getFullYear()}
                   </button>
-                  <button type="button" onClick={() => setCurrent(c => new Date(c.getFullYear() + 1, c.getMonth()))} className="p-1 rounded hover:bg-surface-hover">
+                  <button type="button" onClick={() => setCurrent(c => new Date(c.getFullYear() + 1, c.getMonth()))} className="btn-icon">
                     <ChevronRight className="w-4 h-4" />
                   </button>
                 </div>

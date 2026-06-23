@@ -71,7 +71,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-bg px-4">
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-md animate-slide-up">
 
         {/* ——— HEADER ——— */}
         <div className="text-center mb-8">
@@ -181,8 +181,7 @@ export default function LoginPage() {
                   disabled={loading}
                   aria-label={showPwd ? 'Nascondi password' : 'Mostra password'}
                   className={cn(
-                    'absolute right-3 top-1/2 -translate-y-1/2',
-                    'text-text-muted hover:text-text-secondary transition-colors',
+                    'btn-icon absolute right-3 top-1/2 -translate-y-1/2',
                     'disabled:opacity-50 disabled:cursor-not-allowed'
                   )}
                 >
@@ -195,15 +194,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading || !email || !password}
-              className={cn(
-                'w-full flex items-center justify-center gap-2',
-                'rounded-md px-4 py-2.5 text-sm font-medium transition-colors',
-                'disabled:opacity-50 disabled:cursor-not-allowed'
-              )}
-              style={{
-                backgroundColor: loading ? 'var(--color-brand-hover)' : 'var(--color-brand)',
-                color: 'var(--color-text-on-brand)',
-              }}
+              className="btn-primary w-full justify-center"
             >
               {loading ? (
                 <>

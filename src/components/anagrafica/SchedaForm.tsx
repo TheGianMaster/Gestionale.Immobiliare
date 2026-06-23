@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { Save, X, AlertCircle, Loader2 } from 'lucide-react'
+import { Save, X, AlertCircle, Loader2, ArrowLeft } from 'lucide-react'
 import { FieldRenderer } from '@/components/variabili/FieldRenderer'
 import { buildSchedaSchema } from '@/lib/validators'
 import type { IVariabile } from '@/types/variabili'
@@ -111,8 +111,44 @@ export function SchedaForm({
 
   function removeTag(t: string) { setTags(prev => prev.filter(x => x !== t)) }
 
+  const ActionBar = (
+    <div className="flex items-center justify-between gap-3">
+      <button
+        type="button"
+        onClick={() => router.back()}
+        className="btn-ghost"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        {isEdit ? 'Indietro' : 'Annulla'}
+      </button>
+      <div className="flex items-center gap-3">
+        {isEdit && (
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="btn-secondary"
+          >
+            <X className="w-4 h-4" />
+            Annulla
+          </button>
+        )}
+        <button
+          type="submit"
+          disabled={saving}
+          className="btn-primary"
+        >
+          {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+          {saving ? 'Salvataggio...' : isEdit ? 'Salva modifiche' : 'Crea scheda'}
+        </button>
+      </div>
+    </div>
+  )
+
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-6">
+
+      {/* Azioni — TOP */}
+      {ActionBar}
 
       {/* Errore API */}
       {apiError && (
@@ -189,29 +225,8 @@ export function SchedaForm({
         <p className="text-xs text-text-muted mt-1">Premi Invio o virgola per aggiungere un tag</p>
       </div>
 
-      {/* Actions */}
-      <div className="flex items-center justify-end gap-3">
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-colors"
-        >
-          <X className="w-4 h-4" />
-          Annulla
-        </button>
-        <button
-          type="submit"
-          disabled={saving}
-          className={cn(
-            'flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-medium transition-colors',
-            'disabled:opacity-50 disabled:cursor-not-allowed',
-          )}
-          style={{ backgroundColor: 'var(--color-brand)', color: 'var(--color-text-on-brand)' }}
-        >
-          {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-          {saving ? 'Salvataggio...' : isEdit ? 'Salva modifiche' : 'Crea scheda'}
-        </button>
-      </div>
+      {/* Azioni — BOTTOM */}
+      {ActionBar}
     </form>
   )
 }
