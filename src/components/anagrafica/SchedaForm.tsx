@@ -1,5 +1,11 @@
 'use client'
 
+/**
+ * src/components/anagrafica/SchedaForm.tsx
+ * Form dinamico per creazione e modifica di una scheda.
+ * I campi sono generati da FieldRenderer in base alle Variabili configurate per l'anagrafica.
+ */
+
 import { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Save, X, AlertCircle, Loader2, ArrowLeft } from 'lucide-react'

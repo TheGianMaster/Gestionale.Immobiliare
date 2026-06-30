@@ -71,12 +71,13 @@ function ImpostazioniPopover({ mode, onModeChange, theme, onThemeChange, onClose
   const activeStyle = { backgroundColor: 'var(--color-brand-light)', color: 'var(--color-brand)' }
   return (
     <div
-      className="btn-icon rounded-xl p-3"
+      className="rounded-xl p-3"
       style={{
         backgroundColor: 'var(--color-surface)',
         border: '1px solid var(--color-border)',
         boxShadow: 'var(--shadow-lg)',
-        width: 220,
+        width: 240,
+        minWidth: 240,
       }}
     >
       <p className="text-[10px] font-semibold uppercase tracking-wider mb-2 px-1" style={{ color: 'var(--color-text-muted)' }}>

@@ -41,10 +41,11 @@ Quando passi a `Da convalidare` o `Done`, **DEVI** compilare:
 ## 🏗️ STACK TECNOLOGICO
 
 ```
-Framework:     Next.js 14+ (App Router)
+Framework:     Next.js 16.2.9 (App Router + Turbopack)
 Linguaggio:    TypeScript
 UI:            React + TailwindCSS
-Database:      MongoDB (multi-cluster)
+Database:      MongoDB (singola URI, connessione unificata via connectDB())
+Cache conn.:   Singleton globale, hot-reload safe
 Auth:          NextAuth.js v5 (Credentials Provider)
 Storage:       Cloudflare R2 (S3-compatible)
 Email:         Resend
@@ -601,7 +602,7 @@ Opzioni per i campi di tipo `select`. Gestibili dal pannello admin (WIP). Raggru
 ---
 
 ### T-030 — Layout dashboard principale
-**Stato:** `🟡 Da convalidare`
+**Stato:** `🟢 Done`
 **Priorità:** 🔴 Critica
 **Dipendenze:** T-012, T-003
 **Sub-README:** `docs/10-UI-LAYOUT.md`
@@ -627,7 +628,7 @@ Layout server component con `await auth()` — redirect immediato a /login se se
 ---
 
 ### T-031 — Componente Sidebar
-**Stato:** `🟡 Da convalidare`
+**Stato:** `🟢 Done`
 **Priorità:** 🔴 Critica
 **Dipendenze:** T-030
 **Sub-README:** `docs/10-UI-LAYOUT.md`
@@ -654,7 +655,7 @@ Sidebar duale: versione fissa CSS (desktop ≥ lg) e versione drawer con overlay
 ---
 
 ### T-032 — Componente Header + NotificationBell
-**Stato:** `🟡 Da convalidare`
+**Stato:** `🟢 Done`
 **Priorità:** 🔴 Critica
 **Dipendenze:** T-030, T-026
 **Sub-README:** `docs/10-UI-LAYOUT.md`, `docs/07-NOTIFICHE.md`
@@ -689,7 +690,7 @@ Header è client component (`'use client'`) per il breadcrumb dinamico da `usePa
 ---
 
 ### T-040 — API CRUD Anagrafiche Config
-**Stato:** `🟡 Da convalidare`
+**Stato:** `🟢 Done`
 **Priorità:** 🔴 Critica
 **Dipendenze:** T-020
 **Sub-README:** `docs/03-ANAGRAFICA.md`
@@ -714,7 +715,7 @@ Endpoint per gestire le configurazioni delle anagrafiche. In questa fase: solo l
 ---
 
 ### T-041 — API CRUD Schede
-**Stato:** `🟡 Da convalidare`
+**Stato:** `🟢 Done`
 **Priorità:** 🔴 Critica
 **Dipendenze:** T-023, T-040
 **Sub-README:** `docs/03-ANAGRAFICA.md`
@@ -742,7 +743,7 @@ CRUD completo: GET lista (paginazione + ricerca regex sui previewColumns), POST 
 ---
 
 ### T-042 — Pagina Preview Anagrafica (lista schede)
-**Stato:** `🟡 Da convalidare`
+**Stato:** `🟢 Done`
 **Priorità:** 🔴 Critica
 **Dipendenze:** T-041, T-031
 **Sub-README:** `docs/03-ANAGRAFICA.md`
@@ -774,7 +775,7 @@ PreviewTable client component: carica schede da API con paginazione/ricerca, col
 ---
 
 ### T-043 — Pagina View Scheda
-**Stato:** `🟡 Da convalidare`
+**Stato:** `🟢 Done`
 **Priorità:** Alta
 **Dipendenze:** T-042
 **Sub-README:** `docs/03-ANAGRAFICA.md`
@@ -801,7 +802,7 @@ SchedaView client component con tab Dati | Documenti. Tab Dati: griglia `label |
 ---
 
 ### T-044 — Pagina Edit Scheda (Form)
-**Stato:** `🔴 Da sviluppare`
+**Stato:** `🟢 Done`
 **Priorità:** 🔴 Critica
 **Dipendenze:** T-043, T-050
 **Sub-README:** `docs/03-ANAGRAFICA.md`, `docs/04-VARIABILI.md`
@@ -820,9 +821,14 @@ Form di creazione/modifica scheda. Renderizza i campi dinamicamente tramite `Fie
 - [ ] Submit: mostra loading, gestisce errori, redirect a view dopo successo
 - [ ] Pulsante "Annulla" → torna a preview o view
 
-**Note sviluppo:** *(compilare quando Done)*
+**Note sviluppo:**
+SchedaForm client component con `useCallback` per `handleChange`. Stessa pagina per creazione (`/new`) e modifica (`/[id]/edit`). FieldRenderer dispatcha al field corretto in base al tipo variabile. NewSchedaModal apre il form in modale per creazione rapida dalla lista. Validazione client-side con `buildSchedaSchema` prima del submit; errori mostrati inline sui campi. Submit invia a `POST /api/anagrafiche/[slug]/schede` (nuova) o `PUT /api/.../[id]` (modifica), poi redirect a view.
 
-**File toccati:** *(compilare quando Done)*
+**File toccati:**
+- `src/app/(dashboard)/anagrafica/[slug]/[id]/edit/page.tsx` — creato
+- `src/app/(dashboard)/anagrafica/[slug]/new/page.tsx` — creato
+- `src/components/anagrafica/SchedaForm.tsx` — creato
+- `src/components/anagrafica/NewSchedaModal.tsx` — creato
 
 ---
 
@@ -831,7 +837,7 @@ Form di creazione/modifica scheda. Renderizza i campi dinamicamente tramite `Fie
 ---
 
 ### T-050 — FieldRenderer (dispatcher centrale)
-**Stato:** `🔴 Da sviluppare`
+**Stato:** `🟢 Done`
 **Priorità:** 🔴 Critica
 **Dipendenze:** T-021
 **Sub-README:** `docs/04-VARIABILI.md`
@@ -848,14 +854,16 @@ Componente centrale che riceve una Variabile e renderizza il field component cor
 - [ ] Campo obbligatorio: indicatore `*` rosso accanto alla label
 - [ ] Campo oscurato dalla variante: non renderizzato (il controllo è fatto da SchedaForm)
 
-**Note sviluppo:** *(compilare quando Done)*
+**Note sviluppo:**
+Switch su `variabile.tipo` → importa e renderizza il field component corretto. Props: `variabile`, `valore`, `mode` (view|edit), `onChange?(slug, val)`, `error?`. In view mode: delega a `ViewRow` nel _shared. In edit mode: delega al field con label, input e messaggio errore. Campo obbligatorio: asterisco rosso dalla label del _shared.
 
-**File toccati:** *(compilare quando Done)*
+**File toccati:**
+- `src/components/variabili/FieldRenderer.tsx` — creato
 
 ---
 
 ### T-051 — Campo TEXT e TEXT-AREA
-**Stato:** `🔴 Da sviluppare`
+**Stato:** `🟢 Done`
 **Priorità:** 🔴 Critica
 **Dipendenze:** T-050
 **Sub-README:** `docs/04-VARIABILI.md`
@@ -870,14 +878,18 @@ Implementa i componenti per testo breve e testo lungo.
 - [ ] TextAreaField: `<textarea>` con altezza auto-grow, maxLength 5000, counter caratteri
 - [ ] Entrambi: placeholder dal config, stili coerenti con palette
 
-**Note sviluppo:** *(compilare quando Done)*
+**Note sviluppo:**
+TextField: `<input type="text">` con `maxLength` da config, counter caratteri. TextAreaField: `<textarea>` con altezza auto-grow (scrollHeight), counter. _shared.tsx contiene `BaseFieldProps`, `FieldLabel`, `FieldError`, `ViewRow`, `inputClass`, costante `EMPTY`.
 
-**File toccati:** *(compilare quando Done)*
+**File toccati:**
+- `src/components/variabili/fields/TextField.tsx` — creato
+- `src/components/variabili/fields/TextAreaField.tsx` — creato
+- `src/components/variabili/fields/_shared.tsx` — creato (shared base)
 
 ---
 
 ### T-052 — Campo NUMBERS, MAIL, PHONE
-**Stato:** `🔴 Da sviluppare`
+**Stato:** `🟢 Done`
 **Priorità:** 🔴 Critica
 **Dipendenze:** T-050
 **Sub-README:** `docs/04-VARIABILI.md`
@@ -891,14 +903,18 @@ Campi con validazione specifica per tipo di dato.
 - [ ] `src/components/variabili/fields/PhoneField.tsx` — `<input type="tel">`, accetta solo cifre e `+`, `(`, `)`, `-`, spazio, formattazione automatica
 - [ ] Tutti: indicatori errore inline in rosso (palette `error`)
 
-**Note sviluppo:** *(compilare quando Done)*
+**Note sviluppo:**
+NumberField: `<input type="number">` con `min`, `max`, `step` calcolato da `decimali`. MailField: `<input type="email">` con validazione formato via regex. PhoneField: `<input type="tel">` con accettazione solo chars `[0-9+\s\-()]`.
 
-**File toccati:** *(compilare quando Done)*
+**File toccati:**
+- `src/components/variabili/fields/NumberField.tsx` — creato
+- `src/components/variabili/fields/MailField.tsx` — creato
+- `src/components/variabili/fields/PhoneField.tsx` — creato
 
 ---
 
 ### T-053 — Campo DATA (con calendar picker)
-**Stato:** `🔴 Da sviluppare`
+**Stato:** `🟢 Done`
 **Priorità:** Alta
 **Dipendenze:** T-050
 **Sub-README:** `docs/04-VARIABILI.md`
@@ -916,14 +932,16 @@ Campo data con mini-calendario a comparsa. Navigazione per mese/anno. Il campo m
 - [ ] Usa `@radix-ui/react-popover` per il popover
 - [ ] `date-fns` per manipolazione date
 
-**Note sviluppo:** *(compilare quando Done)*
+**Note sviluppo:**
+Input testo con formato DD/MM/YYYY. Click → popover mini-calendario (Radix Popover). Navigazione prev/next mese, click header mese → vista anni. `date-fns` per manipolazione. Valore salvato come ISO string YYYY-MM-DD.
 
-**File toccati:** *(compilare quando Done)*
+**File toccati:**
+- `src/components/variabili/fields/DateField.tsx` — creato
 
 ---
 
 ### T-054 — Campo SELECT (dropdown)
-**Stato:** `🔴 Da sviluppare`
+**Stato:** `🟢 Done`
 **Priorità:** Alta
 **Dipendenze:** T-050, T-027
 **Sub-README:** `docs/04-VARIABILI.md`
@@ -940,14 +958,17 @@ Dropdown con opzioni caricate da `SelectOption` collection. Opzioni gestibili da
 - [ ] Opzione vuota "Seleziona..." come default
 - [ ] API `GET /api/select-options` protetta da auth
 
-**Note sviluppo:** *(compilare quando Done)*
+**Note sviluppo:**
+SelectField carica opzioni via `GET /api/select-options?variabileSlug=X&anagraficaSlug=Y`. Usa Radix Select. Opzioni con colore: dot colorato accanto al testo. Badge colorato in view mode.
 
-**File toccati:** *(compilare quando Done)*
+**File toccati:**
+- `src/components/variabili/fields/SelectField.tsx` — creato
+- `src/app/api/select-options/route.ts` — creato
 
 ---
 
 ### T-055 — Campo REFERENCE e MULTI-REFERENCE
-**Stato:** `🔴 Da sviluppare`
+**Stato:** `🟢 Done`
 **Priorità:** 🔴 Critica
 **Dipendenze:** T-050, T-041
 **Sub-README:** `docs/04-VARIABILI.md`
@@ -965,14 +986,17 @@ Campo lookup su un'altra anagrafica. La ricerca avviene sul db. Il valore salvat
 - [ ] MultiReference: mostra lista di tag/pill + X per rimuovere singolo
 - [ ] In view mode: mostra label + link cliccabile alla scheda referenziata
 
-**Note sviluppo:** *(compilare quando Done)*
+**Note sviluppo:**
+ReferenceField: input ricerca con debounce 300ms → `GET /api/anagrafiche/[targetSlug]/schede?q=X`. Risultati in dropdown, click seleziona {id, label}. MultiReferenceField: lista tag/pill rimuovibili. In view mode: label + link alla scheda referenziata.
 
-**File toccati:** *(compilare quando Done)*
+**File toccati:**
+- `src/components/variabili/fields/ReferenceField.tsx` — creato
+- `src/components/variabili/fields/MultiReferenceField.tsx` — creato
 
 ---
 
 ### T-056 — Campo VARIANTID
-**Stato:** `🔴 Da sviluppare`
+**Stato:** `🟢 Done`
 **Priorità:** Alta
 **Dipendenze:** T-054, T-022
 **Sub-README:** `docs/04-VARIABILI.md`
@@ -988,9 +1012,12 @@ Campo speciale che identifica la variante della scheda. Carica le varianti dispo
 - [ ] In view mode: mostra badge con nome variante e colore variante
 - [ ] Se nessuna variante disponibile: campo nascosto
 
-**Note sviluppo:** *(compilare quando Done)*
+**Note sviluppo:**
+Dropdown con varianti disponibili via `GET /api/varianti?anagrafica=[slug]`. Al cambio emette onChange a SchedaForm che filtra i campi oscurati dalla variante. In view mode: badge con nome e colore variante.
 
-**File toccati:** *(compilare quando Done)*
+**File toccati:**
+- `src/components/variabili/fields/VariantIDField.tsx` — creato
+- `src/app/api/varianti/route.ts` — creato
 
 ---
 
@@ -999,7 +1026,7 @@ Campo speciale che identifica la variante della scheda. Carica le varianti dispo
 ---
 
 ### T-060 — API Upload e Gestione Documenti (R2)
-**Stato:** `🔴 Da sviluppare`
+**Stato:** `🟢 Done`
 **Priorità:** Alta
 **Dipendenze:** T-024, T-002
 **Sub-README:** `docs/05-DOCUMENTI.md`
@@ -1008,23 +1035,28 @@ Campo speciale che identifica la variante della scheda. Carica le varianti dispo
 API per upload file su Cloudflare R2 e gestione metadati in MongoDB. Accetta JPEG, PDF, HTML.
 
 **Criteri di accettazione:**
-- [ ] `src/lib/r2.ts` — client S3-compatible per R2 (`@aws-sdk/client-s3` + `@aws-sdk/s3-request-presigner`)
-- [ ] `POST /api/documenti/upload` — riceve file multipart, carica su R2, salva metadati
-- [ ] `GET /api/documenti?schedaId=[id]` — lista documenti di una scheda
-- [ ] `DELETE /api/documenti/[id]` — elimina da R2 + db
-- [ ] `GET /api/documenti/[id]/url` — genera URL presigned per download (expire 1h)
-- [ ] Percorso R2: `{anagraficaSlug}/{schedaId}/{timestamp}-{nomeFile}`
-- [ ] Validazione MIME type: solo `image/jpeg`, `application/pdf`, `text/html`
-- [ ] Limite dimensione: 10MB per file
+- [x] `src/lib/r2.ts` — client S3-compatible per R2 (`@aws-sdk/client-s3` + `@aws-sdk/s3-request-presigner`)
+- [x] `POST /api/documenti/upload` — riceve file multipart, carica su R2, salva metadati
+- [x] `GET /api/documenti?schedaId=[id]` — lista documenti di una scheda
+- [x] `DELETE /api/documenti/[id]` — elimina da R2 + db
+- [x] `GET /api/documenti/[id]/url` — genera URL presigned per download (expire 1h)
+- [x] Percorso R2: `{anagraficaSlug}/{schedaId}/{timestamp}-{nomeFile}`
+- [x] Validazione MIME type: solo `image/jpeg`, `application/pdf`, `text/html`
+- [x] Limite dimensione: 10MB per file
 
-**Note sviluppo:** *(compilare quando Done)*
+**Note sviluppo:**
+`r2.ts` con graceful degrade: se le variabili R2_* non sono configurate, `isR2Configured()` ritorna false e gli endpoint rispondono 503 con messaggio chiaro. Upload via multipart/form-data con `formData.get("file")`. Percorso R2: `{anagraficaSlug}/{schedaId}/{timestamp}-{nome}`. URL presigned expire 1h. Soft-delete: `attivo=false` su MongoDB, il file R2 rimane (pulizia futura). MIME accettati: `image/jpeg`, `image/png`, `application/pdf`, `text/html`. MaxMB configurabile per anagrafica (da AnagraficaConfig.maxDocumentoMB).
 
-**File toccati:** *(compilare quando Done)*
+**File toccati:**
+- `src/lib/r2.ts` — creato (S3Client, upload, presign, delete, helper)
+- `src/app/api/documenti/route.ts` — creato (GET lista, POST upload)
+- `src/app/api/documenti/[id]/route.ts` — creato (DELETE soft)
+- `src/app/api/documenti/[id]/url/route.ts` — creato (GET presigned URL)
 
 ---
 
 ### T-061 — UI Sezione Documenti Scheda
-**Stato:** `🔴 Da sviluppare`
+**Stato:** `🟢 Done`
 **Priorità:** Alta
 **Dipendenze:** T-060, T-043
 **Sub-README:** `docs/05-DOCUMENTI.md`
@@ -1041,9 +1073,11 @@ Sezione documenti accessibile dalla tab "Documenti" nella view di una scheda. In
 - [ ] Elimina: conferma modale
 - [ ] NOTA COMMENTO NEL CODICE: *"// TODO: I tipi documento saranno configurabili dal Pannello Controllo > Documenti (WIP)"*
 
-**Note sviluppo:** *(compilare quando Done)*
+**Note sviluppo:**
+DocumentiSection carica `tipiDocumento` e `maxDocumentoMB` da `GET /api/controllo/anagrafiche/[slug]`. Upload drag-and-drop + click-to-browse. Prima del caricamento: modale TipoModal con chip-tag per scegliere il tipo (fallback a lista predefinita se non configurata). Preview inline per JPEG/PNG (img) e PDF/HTML (iframe). Download via URL presigned. Soft-delete con conferma modale. NOTA nel codice: `// TODO: tipi documento configurabili dal Pannello Controllo > Anagrafiche`.
 
-**File toccati:** *(compilare quando Done)*
+**File toccati:**
+- `src/components/anagrafica/DocumentiSection.tsx` — creato
 
 ---
 
@@ -1052,7 +1086,7 @@ Sezione documenti accessibile dalla tab "Documenti" nella view di una scheda. In
 ---
 
 ### T-070 — API Calendario (CRUD eventi)
-**Stato:** `🔴 Da sviluppare`
+**Stato:** `🟢 Done`
 **Priorità:** Alta
 **Dipendenze:** T-025
 **Sub-README:** `docs/06-CALENDARIO.md`
@@ -1061,379 +1095,8 @@ Sezione documenti accessibile dalla tab "Documenti" nella view di una scheda. In
 Endpoint CRUD per gli eventi calendario. Usa il cluster `MONGODB_URI_EVENTI`.
 
 **Criteri di accettazione:**
-- [ ] `GET /api/calendario?mese=[YYYY-MM]` → eventi del mese
-- [ ] `GET /api/calendario?giorno=[YYYY-MM-DD]` → eventi del giorno
-- [ ] `POST /api/calendario` → crea evento
-- [ ] `PUT /api/calendario/[id]` → modifica evento
-- [ ] `DELETE /api/calendario/[id]` → elimina evento
-- [ ] Filtra per `partecipanti` (utente corrente) o `createdBy`
-- [ ] Risposta include info scheda collegata se presente
-
-**Note sviluppo:** *(compilare quando Done)*
-
-**File toccati:** *(compilare quando Done)*
-
----
-
-### T-071 — UI Calendario — Vista Mese
-**Stato:** `🔴 Da sviluppare`
-**Priorità:** Alta
-**Dipendenze:** T-070
-**Sub-README:** `docs/06-CALENDARIO.md`
-
-**Descrizione:**
-Vista mensile del calendario stile Google Calendar. Griglia 7 colonne, eventi visualizzati nelle celle giorno.
-
-**Criteri di accettazione:**
-- [ ] `src/components/calendario/CalendarMonth.tsx`
-- [ ] Navigazione prev/next mese con frecce, click su "Oggi"
-- [ ] Celle giorno: cliccabili per andare alla vista giorno
-- [ ] Eventi nella cella: pill colorato con titolo troncato, max 3 visibili + "altri N"
-- [ ] Click evento → apre `EventModal` in modalità view
-- [ ] Pulsante "+" su ogni cella → apre `EventModal` in modalità crea con data preimpostata
-- [ ] Etichette/flag eventi: colore del pill basato su `colore` evento o prima etichetta
-
-**Note sviluppo:** *(compilare quando Done)*
-
-**File toccati:** *(compilare quando Done)*
-
----
-
-### T-072 — UI Calendario — Vista Giorno + EventModal
-**Stato:** `🔴 Da sviluppare`
-**Priorità:** Alta
-**Dipendenze:** T-071
-**Sub-README:** `docs/06-CALENDARIO.md`
-
-**Descrizione:**
-Vista giornaliera con timeline oraria. Modale per creazione/modifica eventi con gestione etichette.
-
-**Criteri di accettazione:**
-- [ ] `src/components/calendario/CalendarDay.tsx` — timeline 00:00-23:30, eventi posizionati per ora
-- [ ] Switch vista: bottoni Mese | Giorno nella pagina calendario
-- [ ] `src/components/calendario/EventModal.tsx` — modale creazione/modifica:
-  - Titolo, descrizione, data inizio, ora inizio, data fine, ora fine
-  - Toggle "Tutto il giorno"
-  - Selezione colore evento (palette predefinita 8 colori)
-  - Campo etichette (tag liberi, digitabili, multipli)
-  - Link scheda anagrafica (campo reference opzionale)
-  - Partecipanti (utenti del sistema)
-- [ ] Pulsante delete nell'EventModal se modalità edit (con conferma)
-
-**Note sviluppo:** *(compilare quando Done)*
-
-**File toccati:** *(compilare quando Done)*
-
----
-
-## 📋 TICKET — FASE 8: NOTIFICHE
-
----
-
-### T-080 — API Notifiche + Sistema
-**Stato:** `🔴 Da sviluppare`
-**Priorità:** Media
-**Dipendenze:** T-026
-**Sub-README:** `docs/07-NOTIFICHE.md`
-
-**Descrizione:**
-API per gestione notifiche in-app. Include funzione utility per creare notifiche da qualsiasi parte del sistema.
-
-**Criteri di accettazione:**
-- [ ] `GET /api/notifiche?letta=false` → notifiche non lette utente corrente
-- [ ] `GET /api/notifiche?limit=5` → ultime N notifiche
-- [ ] `PATCH /api/notifiche/[id]/leggi` → segna come letta
-- [ ] `PATCH /api/notifiche/leggi-tutte` → segna tutte come lette
-- [ ] `src/lib/notifiche.ts` → funzione `creaNotifica(userId, data)` riutilizzabile
-- [ ] Counter non lette: `GET /api/notifiche/count`
-
-**Note sviluppo:** *(compilare quando Done)*
-
-**File toccati:** *(compilare quando Done)*
-
----
-
-### T-081 — UI NotificationBell e Lista
-**Stato:** `🔴 Da sviluppare`
-**Priorità:** Media
-**Dipendenze:** T-080, T-032
-**Sub-README:** `docs/07-NOTIFICHE.md`
-
-**Descrizione:**
-Componente campanellina nell'header con dropdown lista notifiche.
-
-**Criteri di accettazione:**
-- [ ] `src/components/notifiche/NotificationBell.tsx` — icona campanellina + badge numero
-- [ ] Badge: rosso, numero non lette (nascosto se 0)
-- [ ] Click → apre `NotificationList` come dropdown
-- [ ] `src/components/notifiche/NotificationList.tsx`:
-  - Lista ultime 5 notifiche con: icona tipo, titolo, messaggio troncato, data relativa
-  - Notifiche non lette: sfondo leggermente evidenziato
-  - Pulsante "Segna tutte come lette"
-  - Link "Vedi tutte le notifiche" → pagina `/notifiche`
-- [ ] Click su notifica → segna come letta + naviga al link se presente
-- [ ] Polling ogni 60 secondi per aggiornare counter
-
-**Note sviluppo:** *(compilare quando Done)*
-
-**File toccati:** *(compilare quando Done)*
-
----
-
-## 📋 TICKET — FASE 9: PANNELLO CONTROLLO
-
----
-
-### T-090 — Pannello Controllo (WIP Shell)
-**Stato:** `🔴 Da sviluppare`
-**Priorità:** Media
-**Dipendenze:** T-030
-**Sub-README:** `docs/08-PANNELLO.md`
-
-**Descrizione:**
-Struttura del pannello di controllo con navigazione interna alle sezioni. Ogni sezione mostra "Work in Progress" con styling professionale. Solo admin può accedere.
-
-**Criteri di accettazione:**
-- [ ] `src/app/(dashboard)/controllo/page.tsx`
-- [ ] Solo utenti con `ruolo === 'admin'` possono accedere (redirect 403 altrimenti)
-- [ ] Layout con sidebar secondaria (o tab) per le sezioni:
-  - Anagrafiche
-  - Varianti
-  - Variabili
-  - Utenze *(nota: qui sarà gestito il timeout sessione — aggiungi nota UI)*
-  - Documenti *(nota: qui saranno gestiti i tipi documento per anagrafica)*
-  - Automazioni
-- [ ] Ogni sezione mostra: titolo + descrizione + badge "🚧 Work in Progress"
-- [ ] Stile professionale — non un placeholder grezzo
-
-**Note sviluppo:** *(compilare quando Done)*
-
-**File toccati:** *(compilare quando Done)*
-
----
-
-## 📋 TICKET — FASE 10: SISTEMA SKILLS AGENTE
-
----
-
-### T-100 — Struttura cartella Skills
-**Stato:** `🔴 Da sviluppare`
-**Priorità:** Alta
-**Dipendenze:** nessuna
-**Sub-README:** `skills/README-SKILLS.md`
-
-**Descrizione:**
-Crea la struttura delle skill per ottimizzare i token quando l'agente opera sul sistema. Ogni skill è un documento conciso che descrive come operare su una specifica area del sistema.
-
-**Criteri di accettazione:**
-- [ ] `skills/README-SKILLS.md` — indice master delle skill
-- [ ] `skills/skill-anagrafica.md` — come creare/modificare config anagrafiche
-- [ ] `skills/skill-variabili.md` — come aggiungere tipi di campo, configurare validazioni
-- [ ] `skills/skill-documenti.md` — come gestire upload, tipi documento
-- [ ] `skills/skill-calendario.md` — come creare/modificare eventi
-- [ ] Ogni skill: max 200 righe, solo ciò che serve per eseguire il task, link precisi ai file
-
-**Note sviluppo:** *(compilare quando Done)*
-
-**File toccati:** *(compilare quando Done)*
-
----
-
-## 📋 TICKET — FASE 11: PALETTE & DESIGN SYSTEM
-
----
-
-### T-110 — File Palette e Design Tokens
-**Stato:** `🔴 Da sviluppare`
-**Priorità:** 🔴 Critica
-**Dipendenze:** T-001
-**Sub-README:** `docs/09-PALETTE.md`
-
-**Descrizione:**
-Implementazione completa del sistema di design tokens. Fonte di verità centralizzata per tutti i colori e valori di design.
-
-**Criteri di accettazione:**
-- [ ] `src/styles/palette.ts` — tutti i colori come costanti TypeScript
-- [ ] `src/styles/tokens.ts` — spacing, border-radius, shadows, z-index, breakpoints, typography scale
-- [ ] `src/styles/globals.css` — CSS custom properties generate da palette + reset base
-- [ ] `tailwind.config.ts` — extend con CSS variables per colori + font
-- [ ] Tema chiaro e scuro: due set di CSS variables (`[data-theme="light"]`, `[data-theme="dark"]`)
-- [ ] Componente `ThemeToggle` per switch manuale (salvato in localStorage)
-
-**Note sviluppo:** *(compilare quando Done)*
-
-**File toccati:** *(compilare quando Done)*
-
----
-
-### T-111 — Componenti UI Base
-**Stato:** `🔴 Da sviluppare`
-**Priorità:** 🔴 Critica
-**Dipendenze:** T-110
-**Sub-README:** `docs/09-PALETTE.md`
-
-**Descrizione:**
-Libreria di componenti UI base utilizzati ovunque nel progetto. Tutti devono usare i CSS tokens.
-
-**Criteri di accettazione:**
-- [ ] `src/components/ui/Button.tsx` — varianti: primary, secondary, ghost, danger; dimensioni: sm, md, lg; stati: loading, disabled
-- [ ] `src/components/ui/Input.tsx` — con label, error, helper text, icona prefisso/suffisso
-- [ ] `src/components/ui/Modal.tsx` — dialog accessibile con overlay, close button, animazione
-- [ ] `src/components/ui/Badge.tsx` — varianti colore, con punto colorato opzionale
-- [ ] `src/components/ui/Skeleton.tsx` — placeholder loading animato
-- [ ] `src/components/ui/Toast.tsx` — notifiche temporanee (success, error, info, warning)
-- [ ] `src/components/ui/Card.tsx` — contenitore con border, shadow, padding
-- [ ] `src/components/ui/Spinner.tsx` — loading spinner
-
-**Note sviluppo:** *(compilare quando Done)*
-
-**File toccati:** *(compilare quando Done)*
-
----
-
-## 📋 TICKET — FASE 12: SEED DATI & CONFIGURAZIONE INIZIALE
-
----
-
-### T-120 — Seed dati iniziali sistema
-**Stato:** `🔴 Da sviluppare`
-**Priorità:** Alta
-**Dipendenze:** T-020, T-021, T-022, T-013
-**Sub-README:** `docs/00-SETUP.md`
-
-**Descrizione:**
-Script per popolare il db con la configurazione base del sistema. Crea un'anagrafica "Clienti" di esempio con variabili e varianti di esempio.
-
-**Criteri di accettazione:**
-- [ ] `scripts/seed-data.ts`
-- [ ] Crea anagrafica "Clienti" con slug `clienti`
-- [ ] Variabili: nome (text), cognome (text), email (mail), telefono (phone), piva (text), note (text-area), tipo_cliente (select con opzioni: Azienda, Privato, Professionista), variantID
-- [ ] Variante "Azienda": visibile tutto, P.IVA obbligatoria
-- [ ] Variante "Privato": P.IVA oscurata
-- [ ] SelectOptions per tipo_cliente
-- [ ] 3 schede di esempio
-- [ ] Script idempotente (non ricrea se già esiste)
-
-**Note sviluppo:** *(compilare quando Done)*
-
-**File toccati:** *(compilare quando Done)*
-
----
-
-## 📋 TICKET — FASE 13: QUALITÀ & SICUREZZA
-
----
-
-### T-130 — Middleware sicurezza e protezione route
-**Stato:** `🔴 Da sviluppare`
-**Priorità:** 🔴 Critica
-**Dipendenze:** T-011
-**Sub-README:** `docs/01-AUTH.md`
-
-**Descrizione:**
-Middleware Next.js per protezione route, rate limiting, CSRF protection.
-
-**Criteri di accettazione:**
-- [ ] `src/middleware.ts` — controlla sessione NextAuth su tutte le route `(dashboard)`
-- [ ] API routes: verifica sessione con `getServerSession`
-- [ ] Rate limiting semplice su `/api/auth` (max 10 tentativi/minuto per IP)
-- [ ] Headers sicurezza: CSP, X-Frame-Options, X-Content-Type-Options
-- [ ] Sanitizzazione input su tutte le API (Zod strip unknown keys)
-- [ ] Admin-only routes: `/controllo/*` accessibile solo da ruolo admin
-
-**Note sviluppo:** *(compilare quando Done)*
-
-**File toccati:** *(compilare quando Done)*
-
----
-
-### T-131 — Validatori Zod centralizzati
-**Stato:** `🔴 Da sviluppare`
-**Priorità:** Alta
-**Dipendenze:** T-021
-**Sub-README:** `docs/04-VARIABILI.md`
-
-**Descrizione:**
-Funzione che genera dinamicamente uno schema Zod per validare i dati di una scheda in base alle Variabili configurate.
-
-**Criteri di accettazione:**
-- [ ] `src/lib/validators.ts`
-- [ ] Funzione `buildSchedaSchema(variabili: Variabile[], variantID?: string): z.ZodSchema`
-- [ ] Per ogni tipo Variabile genera il validator Zod corretto:
-  - text → `z.string().max(maxLength)`
-  - mail → `z.string().email()`
-  - phone → `z.string().regex(/^[0-9+\s\-()]+$/)`
-  - numbers → `z.number().min(min).max(max)`
-  - data → `z.string().regex(/^\d{4}-\d{2}-\d{2}$/)`
-  - select → `z.string()` (o z.enum con opzioni)
-  - reference → `z.object({id: z.string(), label: z.string()})`
-  - multi-reference → `z.array(z.object({id: z.string(), label: z.string()}))`
-- [ ] Variabili oscurate dalla variante → campo opzionale nello schema
-- [ ] Esportato e usato sia lato client che server
-
-**Note sviluppo:** *(compilare quando Done)*
-
-**File toccati:** *(compilare quando Done)*
-
----
-
-## 📋 TICKET — FASE 14: DEPLOY & DOCUMENTAZIONE
-
----
-
-### T-140 — CHANGELOG e documentazione deploy
-**Stato:** `🔴 Da sviluppare`
-**Priorità:** Bassa
-**Dipendenze:** tutti i ticket precedenti
-**Sub-README:** nessuno
-
-**Descrizione:**
-Documentazione di deploy e changelog iniziale.
-
-**Criteri di accettazione:**
-- [ ] `CHANGELOG.md` con versione 0.1.0 e lista feature implementate
-- [ ] Sezione in `docs/00-SETUP.md` su come deployare su Vercel
-- [ ] Checklist variabili d'ambiente per produzione
-- [ ] Note su MongoDB Atlas indexes da creare manualmente
-- [ ] Guida backup R2
-
-**Note sviluppo:** *(compilare quando Done)*
-
-**File toccati:** *(compilare quando Done)*
-
----
-
-## 📊 RIEPILOGO TICKET
-
-| Fase | Ticket | Stato |
-|------|--------|-------|
-| Fase 0 - Setup | T-001 🟢, T-002 🟢, T-003 🟢, T-004 🟢 | 🟢 Done |
-| Fase 1 - Auth | T-010 🟢, T-011 🟢, T-012 🟢, T-013 🟢 | 🟢 Done |
-| Fase 2 - Database | T-020 🟢, T-021 🟢, T-022 🟢, T-023 🟢, T-024 🟢, T-025 🟢, T-026 🟢, T-027 🟢 | 🟢 Done |
-| Fase 3 - Layout | T-030 🟡, T-031 🟡, T-032 🟡 | 🟡 Da convalidare |
-| Fase 4 - Anagrafica | T-040 🟡, T-041 🟡, T-042 🟡, T-043 🟡, T-044 🔴 | 🟡 Parziale (T-044 dipende da T-050) |
-| Fase 5 - Field Types | T-050..T-056 | 🔴 Da sviluppare |
-| Fase 6 - Documenti | T-060, T-061 | 🔴 Da sviluppare |
-| Fase 7 - Calendario | T-070, T-071, T-072 | 🔴 Da sviluppare |
-| Fase 8 - Notifiche | T-080, T-081 | 🔴 Da sviluppare |
-| Fase 9 - Pannello | T-090 | 🔴 Da sviluppare |
-| Fase 10 - Skills | T-100 | 🔴 Da sviluppare |
-| Fase 11 - UI System | T-110, T-111 | 🔴 Da sviluppare |
-| Fase 12 - Seed | T-120 | 🔴 Da sviluppare |
-| Fase 13 - Qualità | T-130, T-131 | 🔴 Da sviluppare |
-| Fase 14 - Deploy | T-140 | 🔴 Da sviluppare |
-
-**Totale ticket: 37**
-
----
-
-## ⚠️ REGOLE OPERATIVE PER CLAUDE CODE
-
-1. **Leggi sempre il README prima di iniziare.** Non saltare passi.
-2. **Un ticket alla volta.** Non passare al successivo senza convalida utente.
-3. **Aggiorna lo stato del ticket** non appena inizi, quando finisci, e dopo la convalida.
-4. **Consulta il sub-README** relativo al ticket corrente per dettagli tecnici.
-5. **Consulta le skills** in `skills/` per ottimizzare le operazioni ripetitive.
-6. **Mai toccare** file al di fuori dello scope del ticket corrente.
-7. **Commenta il codice** in italiano dove ha senso operativamente, in inglese per costrutti tecnici standard.
-8. **Aggiorna `File toccati`** con percorsi precisi al completamento di ogni ticket.
+- [x] `GET /api/calendario?mese=[YYYY-MM]` → eventi del mese
+- [x] `GET /api/calendario?giorno=[YYYY-MM-DD]` → eventi del giorno
+- [x] `POST /api/calendario` → crea evento
+- [x] `PUT /api/calendario/[id]` → modifica evento
+- [ ] `DELETE /ap

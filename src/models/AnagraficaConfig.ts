@@ -22,6 +22,7 @@ export interface IAnagraficaConfig extends Document {
   previewColumns: string[]
   varianti:       IVarianteConfig[]
   tipiDocumento:  string[]
+  maxDocumentoMB: number
   attiva:         boolean
   ordine:         number
   createdAt:      Date
@@ -57,6 +58,7 @@ const AnagraficaConfigSchema = new Schema<IAnagraficaConfig, IAnagraficaConfigMo
     previewColumns: [{ type: String }],
     varianti:       [VarianteConfigSchema],
     tipiDocumento:  [{ type: String }],
+    maxDocumentoMB: { type: Number, default: 10, min: 1, max: 100 },
     attiva:         { type: Boolean, default: true },
     ordine:         { type: Number, default: 0 },
   },

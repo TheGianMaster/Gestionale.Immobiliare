@@ -333,8 +333,20 @@ body {
 /* =============================================
    MODAL
    ============================================= */
-.modal-backdrop { animation: fadeIn var(--duration-normal) var(--ease-out) both; }
-.modal-panel    { animation: scaleIn var(--duration-slow) var(--ease-spring) both; }
+.modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(2px);
+  animation: fadeIn var(--duration-normal) var(--ease-out) both;
+}
+.modal-panel {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-xl);
+  animation: scaleIn var(--duration-slow) var(--ease-spring) both;
+}
+
+/* Loading cursor */
+.cursor-loading, .cursor-loading * { cursor: wait !important; }
 
 /* =============================================
    NAV ITEM

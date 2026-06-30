@@ -1,3 +1,9 @@
+/**
+ * src/lib/validators.ts
+ * Generatore dinamico di schema Zod per i dati di una scheda.
+ * Usato lato server (API route) e lato client (SchedaForm) per validazione uniforme.
+ */
+
 import { z } from 'zod'
 import type { IVariabile } from '@/types/variabili'
 

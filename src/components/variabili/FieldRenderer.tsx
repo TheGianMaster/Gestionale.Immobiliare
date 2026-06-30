@@ -1,5 +1,11 @@
 'use client'
 
+/**
+ * src/components/variabili/FieldRenderer.tsx
+ * Dispatcher centrale per i tipi di campo delle anagrafiche.
+ * Riceve una Variabile e renderizza il componente corretto in modalita' view o edit.
+ */
+
 import type { IVariabile } from '@/types/variabili'
 import { TextField } from './fields/TextField'
 import { TextAreaField } from './fields/TextAreaField'

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Pencil, ArrowLeft } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { FieldRenderer } from '@/components/variabili/FieldRenderer'
+import { DocumentiSection } from '@/components/anagrafica/DocumentiSection'
 import type { IAnagraficaConfig } from '@/models/AnagraficaConfig'
 import type { IVariabile } from '@/types/variabili'
 
@@ -135,14 +136,10 @@ export function SchedaView({ slug, scheda, config, variabili }: SchedaViewProps)
 
       {/* Tab Documenti */}
       {tab === 'documenti' && (
-        <div className="rounded-xl p-8 text-center" style={{ backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
-          <p className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
-            Sezione documenti — Work in Progress
-          </p>
-          <p className="text-xs mt-1" style={{ color: 'var(--color-text-muted)' }}>
-            Upload e gestione documenti in arrivo nella Fase 6.
-          </p>
-        </div>
+        <DocumentiSection
+          schedaId={scheda._id}
+          anagraficaSlug={slug}
+        />
       )}
     </div>
   )

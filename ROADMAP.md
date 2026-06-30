@@ -4,7 +4,7 @@
 
 ---
 
-## FASE 0 — SETUP & FONDAMENTA
+## ✅ FASE 0 — SETUP & FONDAMENTA
 **Stima:** 1-2 sessioni
 **Ticket:** T-001, T-002, T-003, T-004
 
@@ -13,7 +13,7 @@ Obiettivo: progetto funzionante, DB connesso, palette definita, struttura cartel
 
 ---
 
-## FASE 1 — AUTENTICAZIONE
+## ✅ FASE 1 — AUTENTICAZIONE
 **Stima:** 1-2 sessioni
 **Ticket:** T-010, T-011, T-012, T-013
 **Dipende da:** Fase 0
@@ -23,7 +23,7 @@ Obiettivo: login funzionante con sessione 72h, crittografia password, middleware
 
 ---
 
-## FASE 2 — DATABASE SCHEMA
+## ✅ FASE 2 — DATABASE SCHEMA
 **Stima:** 1 sessione
 **Ticket:** T-020, T-021, T-022, T-023, T-024, T-025, T-026, T-027
 **Dipende da:** Fase 0
@@ -33,7 +33,7 @@ Obiettivo: tutti i modelli Mongoose creati con indici corretti.
 
 ---
 
-## FASE 3 — LAYOUT & NAVIGAZIONE
+## ✅ FASE 3 — LAYOUT & NAVIGAZIONE
 **Stima:** 1-2 sessioni
 **Ticket:** T-030, T-031, T-032
 **Dipende da:** Fase 1, Fase 2
@@ -43,7 +43,7 @@ Obiettivo: dashboard navigabile, sidebar con anagrafiche dinamiche, header compl
 
 ---
 
-## FASE 4 — MOTORE ANAGRAFICA
+## ✅ FASE 4 — MOTORE ANAGRAFICA
 **Stima:** 2-3 sessioni
 **Ticket:** T-040, T-041, T-042, T-043, T-044
 **Dipende da:** Fase 2, Fase 3
@@ -53,7 +53,7 @@ Obiettivo: CRUD completo schede, preview con search, view e edit funzionanti.
 
 ---
 
-## FASE 5 — FIELD TYPES SYSTEM
+## ✅ FASE 5 — FIELD TYPES SYSTEM
 **Stima:** 2-3 sessioni
 **Ticket:** T-050, T-051, T-052, T-053, T-054, T-055, T-056
 **Dipende da:** Fase 2, Fase 4
@@ -63,7 +63,7 @@ Obiettivo: tutti i 10 tipi di campo implementati e funzionanti nel form.
 
 ---
 
-## FASE 6 — DOCUMENTI
+## ✅ FASE 6 — DOCUMENTI
 **Stima:** 1-2 sessioni
 **Ticket:** T-060, T-061
 **Dipende da:** Fase 4, Fase 5
@@ -73,7 +73,7 @@ Obiettivo: upload file su R2, gestione tipi, preview in-browser.
 
 ---
 
-## FASE 7 — CALENDARIO
+## ✅ FASE 7 — CALENDARIO
 **Stima:** 2 sessioni
 **Ticket:** T-070, T-071, T-072
 **Dipende da:** Fase 3
@@ -83,7 +83,7 @@ Obiettivo: calendario mensile e giornaliero con gestione eventi ed etichette.
 
 ---
 
-## FASE 8 — NOTIFICHE
+## ✅ FASE 8 — NOTIFICHE
 **Stima:** 1 sessione
 **Ticket:** T-080, T-081
 **Dipende da:** Fase 3
@@ -93,7 +93,7 @@ Obiettivo: sistema notifiche in-app completo con badge e dropdown.
 
 ---
 
-## FASE 9 — PANNELLO CONTROLLO (WIP)
+## ✅ FASE 9 — PANNELLO CONTROLLO (WIP)
 **Stima:** 0.5 sessioni
 **Ticket:** T-090
 **Dipende da:** Fase 3
@@ -113,7 +113,7 @@ Obiettivo: documenti skill per ottimizzare futuri sviluppi con agente AI.
 
 ---
 
-## FASE 11 — UI SYSTEM & PALETTE
+## ✅ FASE 11 — UI SYSTEM & PALETTE
 **Stima:** 1-2 sessioni
 **Ticket:** T-110, T-111
 **Dipende da:** Fase 0
@@ -124,7 +124,7 @@ Obiettivo: design system completo, componenti UI base, tema chiaro/scuro.
 
 ---
 
-## FASE 12 — SEED & CONFIG INIZIALE
+## ✅ FASE 12 — SEED & CONFIG INIZIALE
 **Stima:** 0.5 sessioni
 **Ticket:** T-120
 **Dipende da:** Fase 2, Fase 5
@@ -134,7 +134,7 @@ Obiettivo: database popolato con dati dimostrativi.
 
 ---
 
-## FASE 13 — QUALITÀ & SICUREZZA
+## ✅ FASE 13 — QUALITÀ & SICUREZZA
 **Stima:** 1 sessione
 **Ticket:** T-130, T-131
 **Dipende da:** tutte le fasi precedenti
@@ -144,7 +144,7 @@ Obiettivo: middleware sicurezza, validatori centralizzati.
 
 ---
 
-## FASE 14 — DEPLOY
+## ✅ FASE 14 — DEPLOY
 **Stima:** 0.5 sessioni
 **Ticket:** T-140
 **Dipende da:** tutte le fasi precedenti

@@ -1,5 +1,10 @@
 'use client'
 
+/**
+ * src/components/variabili/fields/_shared.tsx
+ * Props base, componenti di layout e utility condivisi da tutti i field types.
+ */
+
 import type { IVariabile } from '@/types/variabili'
 import { cn } from '@/lib/utils'
 

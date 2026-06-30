@@ -38,7 +38,7 @@ export async function GET(
     }
 
     const Scheda = await getSchedaModel(slug)
-    const scheda = await Scheda.findOne({ _id: id, attiva: true }).lean()
+    const scheda = await Scheda.findOne({ _id: id }).lean()
 
     if (!scheda) {
       return NextResponse.json({ error: 'Scheda non trovata' }, { status: 404 })
@@ -89,7 +89,7 @@ export async function PUT(
     if (tags !== undefined) aggiornamento.tags = tags
 
     const scheda = await Scheda.findOneAndUpdate(
-      { _id: id, attiva: true },
+      { _id: id },
       aggiornamento,
       { new: true }
     ).lean()
@@ -132,11 +132,7 @@ export async function DELETE(
     const userId = new mongoose.Types.ObjectId(session.user.id)
     const Scheda = await getSchedaModel(slug)
 
-    const scheda = await Scheda.findOneAndUpdate(
-      { _id: id, attiva: true },
-      { attiva: false, modificataDa: userId },
-      { new: true }
-    ).lean()
+    const scheda = await Scheda.findOneAndDelete({ _id: id }).lean()
 
     if (!scheda) {
       return NextResponse.json({ error: 'Scheda non trovata' }, { status: 404 })

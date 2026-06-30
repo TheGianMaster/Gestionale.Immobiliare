@@ -44,7 +44,7 @@ export async function GET(
     const Scheda = await getSchedaModel(slug)
 
     // ——— FILTRO BASE ———
-    const filtro: Record<string, unknown> = { attiva: true }
+    const filtro: Record<string, unknown> = {}
 
     // ——— RICERCA FULL-TEXT SUI PREVIEW COLUMNS ———
     if (q && config.previewColumns.length > 0) {

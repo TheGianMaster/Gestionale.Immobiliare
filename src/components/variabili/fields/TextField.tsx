@@ -1,5 +1,10 @@
 'use client'
 
+/**
+ * src/components/variabili/fields/TextField.tsx
+ * Campo testo breve (tipo: text). Supporta maxLength e placeholder configurabili.
+ */
+
 import { BaseFieldProps, FieldLabel, FieldError, ViewRow, inputClass, EMPTY } from './_shared'
 
 export function TextField({ variabile, valore, mode, onChange, error }: BaseFieldProps) {
