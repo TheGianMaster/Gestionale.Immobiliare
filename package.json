@@ -11,7 +11,8 @@
     "create:admin": "tsx scripts/create-admin.ts",
     "seed:admin": "tsx scripts/seed-admin.ts",
     "seed:data": "tsx scripts/seed-data.ts",
-    "seed:all": "npm run seed:admin && npm run seed:data"
+    "seed:all": "npm run seed:admin && npm run seed:data",
+    "setup:r2": "tsx scripts/setup-r2.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.600.0",

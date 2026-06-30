@@ -11,7 +11,8 @@ export interface IDocumento extends Document {
   schedaId: Schema.Types.ObjectId
   anagraficaSlug: string
   tipo: string
-  nome: string
+  nome: string        // nome file originale
+  titolo?: string     // titolo leggibile inserito dall'utente al momento del caricamento
   mimeType: string
   dimensione: number
   s3Key: string
@@ -31,6 +32,7 @@ export const DocumentoSchema = new Schema<IDocumento, IDocumentoModel>(
     anagraficaSlug: { type: String, required: true, lowercase: true, trim: true },
     tipo:           { type: String, required: true, trim: true, lowercase: true },
     nome:           { type: String, required: true, trim: true, maxlength: 255 },
+    titolo:         { type: String, trim: true, maxlength: 255 },
     mimeType:       { type: String, required: true, trim: true },
     dimensione:     { type: Number, required: true, min: 0 },
     s3Key:          { type: String, required: true, trim: true },
@@ -42,7 +44,7 @@ export const DocumentoSchema = new Schema<IDocumento, IDocumentoModel>(
   { timestamps: true }
 )
 
-DocumentoSchema.index({ schedaId: 1, attivo: 1 })
+DocumentoSchema.index({ schedaId: 1 })
 DocumentoSchema.index({ s3Key: 1 }, { unique: true })
 
 let _DocumentoModel: IDocumentoModel | null = null

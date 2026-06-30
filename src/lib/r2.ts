@@ -44,12 +44,35 @@ export async function uploadToR2(
   return key
 }
 
-/** Genera URL presigned per accesso diretto (scade dopo expiresIn secondi). */
+/** Genera URL presigned per visualizzazione inline (Content-Disposition: inline). */
 export async function getPresignedUrl(key: string, expiresIn = 3600): Promise<string> {
   const client = getR2Client()
   return getSignedUrl(
     client,
-    new GetObjectCommand({ Bucket: R2_BUCKET, Key: key }),
+    new GetObjectCommand({
+      Bucket: R2_BUCKET,
+      Key: key,
+      ResponseContentDisposition: 'inline',
+    }),
+    { expiresIn }
+  )
+}
+
+/** Genera URL presigned per download forzato (Content-Disposition: attachment). */
+export async function getPresignedDownloadUrl(
+  key: string,
+  filename: string,
+  expiresIn = 3600
+): Promise<string> {
+  const client = getR2Client()
+  const safeFilename = encodeURIComponent(filename)
+  return getSignedUrl(
+    client,
+    new GetObjectCommand({
+      Bucket: R2_BUCKET,
+      Key: key,
+      ResponseContentDisposition: `attachment; filename*=UTF-8''${safeFilename}`,
+    }),
     { expiresIn }
   )
 }

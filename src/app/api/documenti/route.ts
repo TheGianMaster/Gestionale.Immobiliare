@@ -50,6 +50,7 @@ export async function POST(req: NextRequest) {
     const schedaId      = formData.get('schedaId') as string | null
     const anagraficaSlug = formData.get('anagraficaSlug') as string | null
     const tipoDocumento  = (formData.get('tipoDocumento') as string | null) ?? 'documento'
+    const titolo         = (formData.get('titolo') as string | null)?.trim() || undefined
 
     if (!file || !schedaId || !anagraficaSlug) {
       return NextResponse.json({ error: 'Campi obbligatori: file, schedaId, anagraficaSlug' }, { status: 400 })
@@ -74,6 +75,7 @@ export async function POST(req: NextRequest) {
       schedaId,
       anagraficaSlug,
       tipo:       tipoDocumento,
+      titolo,
       nome:       file.name,
       mimeType:   file.type,
       dimensione: file.size,

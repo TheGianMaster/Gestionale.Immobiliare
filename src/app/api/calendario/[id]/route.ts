@@ -9,15 +9,16 @@ import { getEventoModel } from '@/models/Evento'
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth()
     if (!session) return NextResponse.json({ error: 'Non autorizzato' }, { status: 401 })
 
+    const { id } = await params
     const body = await req.json()
     const Evento = await getEventoModel()
-    const evento = await Evento.findById(params.id)
+    const evento = await Evento.findById(id)
 
     if (!evento) {
       return NextResponse.json({ error: 'Evento non trovato' }, { status: 404 })
@@ -57,14 +58,15 @@ export async function PUT(
 
 export async function DELETE(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth()
     if (!session) return NextResponse.json({ error: 'Non autorizzato' }, { status: 401 })
 
+    const { id } = await params
     const Evento = await getEventoModel()
-    const evento = await Evento.findById(params.id)
+    const evento = await Evento.findById(id)
     if (!evento) {
       return NextResponse.json({ error: 'Evento non trovato' }, { status: 404 })
     }

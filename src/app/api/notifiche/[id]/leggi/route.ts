@@ -11,7 +11,7 @@ import { Notifica } from '@/models/Notifica'
 
 export async function PATCH(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth()
@@ -19,10 +19,11 @@ export async function PATCH(
       return NextResponse.json({ error: 'Non autorizzato' }, { status: 401 })
     }
 
+    const { id } = await params
     await connectDB()
 
     const notifica = await Notifica.findOneAndUpdate(
-      { _id: params.id, userId: session.user.id },
+      { _id: id, userId: session.user.id },
       { letta: true },
       { new: true }
     )
