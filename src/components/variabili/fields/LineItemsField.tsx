@@ -231,8 +231,8 @@ export function LineItemsField({ variabile, valore, mode, onChange, error }: Bas
                               ) : <span>{ref.label}</span>
                           }
                         } else if (c.tipo === 'numbers') {
-                          const n = cell as number | null
-                          if (n !== null && n !== undefined) {
+                          const n = cell !== null && cell !== undefined ? Number(cell) : null
+                          if (n !== null && !isNaN(n)) {
                             content = <span>{c.decimali ? n.toFixed(2) : String(n)}</span>
                           }
                         } else {

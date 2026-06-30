@@ -12,22 +12,25 @@ import {
   Settings, Calendar, FolderOpen, Database, Layers,
   Users, Zap, Plus, Pencil, Trash2, Loader2,
   Check, X, ChevronDown, ChevronRight, Save, Tag, Download, FileUp,
+  LayoutList,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { WIPSection } from '@/components/ui/WIPSection'
 import { SezioneImport } from '@/components/controllo/SezioneImport'
+import { SezioneLayout } from '@/components/controllo/SezioneLayout'
 
 // ── Tipi ─────────────────────────────────────────────────────
 interface TipoCalendario { _id: string; nome: string; colore: string }
 interface AnagraficaCfg  { slug: string; nome: string; colore: string; tipiDocumento: string[]; maxDocumentoMB: number }
 
 // ── Sezioni nav ───────────────────────────────────────────────
-type SezioneId = 'calendario' | 'anagrafiche' | 'import' | 'variabili' | 'varianti' | 'utenze' | 'automazioni'
+type SezioneId = 'calendario' | 'anagrafiche' | 'import' | 'layout' | 'variabili' | 'varianti' | 'utenze' | 'automazioni'
 
 const SEZIONI: { id: SezioneId; label: string; Icona: React.ElementType }[] = [
   { id: 'calendario',   label: 'Calendario',   Icona: Calendar },
   { id: 'anagrafiche',  label: 'Anagrafiche',  Icona: FolderOpen },
   { id: 'import',       label: 'Import',        Icona: FileUp },
+  { id: 'layout',       label: 'Layout',        Icona: LayoutList },
   { id: 'variabili',    label: 'Variabili',    Icona: Database },
   { id: 'varianti',     label: 'Varianti',     Icona: Layers },
   { id: 'utenze',       label: 'Utenze',       Icona: Users },
@@ -258,6 +261,7 @@ export default function PannelloControlloPage() {
       case 'calendario':  return <SezioneCalendario />
       case 'anagrafiche': return <SezioneAnagrafiche />
       case 'import':      return <SezioneImport />
+      case 'layout':      return <SezioneLayout />
       case 'variabili':
         return <WIPSection
           nome="Variabili"

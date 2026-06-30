@@ -20,14 +20,25 @@ export function SelectField({ variabile, valore, mode, onChange, error, anagrafi
   useEffect(() => {
     const params = new URLSearchParams({ variabile: variabile.slug })
     if (anagraficaSlug) params.set('anagrafica', anagraficaSlug)
-    fetch(`/api/select-options?${params}`)
+    fetch('/api/select-options?' + params)
       .then(r => r.json())
-      .then(data => { if (Array.isArray(data.options)) setOptions(data.options) })
-      .catch(() => {})
-      .finally(() => setLoading(false))
+      .then(data => {
+        const raw = data.opzioni ?? data.options ?? []
+        if (Array.isArray(raw)) {
+          setOptions(raw.map(function(o) {
+            return {
+              valore: o.valore,
+              label:  o.etichetta ?? o.label ?? o.valore,
+              colore: o.colore,
+            }
+          }))
+        }
+      })
+      .catch(function() {})
+      .finally(function() { setLoading(false) })
   }, [variabile.slug, anagraficaSlug])
 
-  const selected = options.find(o => o.valore === val)
+  const selected = options.find(function(o) { return o.valore === val })
 
   if (mode === 'view') {
     return (
@@ -47,7 +58,7 @@ export function SelectField({ variabile, valore, mode, onChange, error, anagrafi
   return (
     <div>
       <FieldLabel label={variabile.nome} obbligatorio={variabile.obbligatorio} />
-      <Select.Root value={val} onValueChange={v => onChange?.(v === '__none__' ? null : v)}>
+      <Select.Root value={val} onValueChange={function(v) { onChange?.(v === '__none__' ? null : v) }}>
         <Select.Trigger
           className={cn(
             'w-full flex items-center justify-between rounded-lg px-3 py-2 text-sm transition-colors',
@@ -79,17 +90,21 @@ export function SelectField({ variabile, valore, mode, onChange, error, anagrafi
               >
                 <Select.ItemText>Seleziona...</Select.ItemText>
               </Select.Item>
-              {options.map(o => (
-                <Select.Item
-                  key={o._id}
-                  value={o.valore}
-                  className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg text-text-primary cursor-pointer outline-none hover:bg-surface-hover data-[highlighted]:bg-surface-hover"
-                >
-                  {o.colore && <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: o.colore }} />}
-                  <Select.ItemText>{o.label}</Select.ItemText>
-                  <Select.ItemIndicator className="ml-auto"><Check className="w-3.5 h-3.5 text-brand" /></Select.ItemIndicator>
-                </Select.Item>
-              ))}
+              {options.map(function(o) {
+                return (
+                  <Select.Item
+                    key={o.valore}
+                    value={o.valore}
+                    className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg text-text-primary cursor-pointer outline-none hover:bg-surface-hover data-[highlighted]:bg-surface-hover"
+                  >
+                    {o.colore && <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: o.colore }} />}
+                    <Select.ItemText>{o.label}</Select.ItemText>
+                    <Select.ItemIndicator className="ml-auto">
+                      <Check className="w-3.5 h-3.5" />
+                    </Select.ItemIndicator>
+                  </Select.Item>
+                )
+              })}
             </Select.Viewport>
           </Select.Content>
         </Select.Portal>

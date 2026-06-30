@@ -72,8 +72,9 @@ export async function getSchedaModel(anagraficaSlug: string): Promise<ISchedaMod
   const conn = await getAnagraficheConnection()
   const collectionName = `schede_${anagraficaSlug}`
 
+  // Terzo argomento: forza il nome collection (Mongoose altrimenti pluralizza)
   const model = (conn.models[collectionName] as ISchedaModel | undefined)
-    ?? conn.model<IScheda, ISchedaModel>(collectionName, SchedaSchema)
+    ?? conn.model<IScheda, ISchedaModel>(collectionName, SchedaSchema, collectionName)
 
   _schedaModels.set(anagraficaSlug, model)
   return model

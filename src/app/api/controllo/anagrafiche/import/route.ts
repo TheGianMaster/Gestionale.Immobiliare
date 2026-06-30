@@ -8,6 +8,7 @@ import { auth } from '@/lib/auth'
 import connectDB from '@/lib/mongodb'
 import { AnagraficaConfig } from '@/models/AnagraficaConfig'
 import { Variabile } from '@/models/Variabile'
+import { SelectOption } from '@/models/SelectOption'
 import { getSchedaModel } from '@/models/Scheda'
 import ExcelJS from 'exceljs'
 import mongoose from 'mongoose'
@@ -20,7 +21,7 @@ export interface ParsedColumn {
   variabileSlug: string | null
   variabileNome: string | null
   tipo: string | null
-  referenceTo: string | null    // solo per tipo reference/multi-reference
+  referenceTo: string | null
   matched: boolean
   isLineItems: boolean
   liSlug: string | null
@@ -32,14 +33,13 @@ export interface ParsedRow {
   values: (string | number | null)[]
 }
 
-/** Risultato di risoluzione reference per singola cella nella preview */
 export interface RefPreviewResult {
-  rowIndex: number    // indice 0-based in rows[]
-  colIndex: number    // col.index (colonna Excel 1-based)
-  label: string       // testo originale della cella
-  referenceTo: string // slug anagrafica target
+  rowIndex: number
+  colIndex: number
+  label: string
+  referenceTo: string
   resolved: boolean
-  foundId?: string    // _id trovato, se resolved
+  foundId?: string
 }
 
 export interface ParsedSheet {
@@ -60,7 +60,7 @@ export interface ParseResult {
   globalErrors: string[]
 }
 
-// ─── Utilità matching ─────────────────────────────────────────────────────────
+// ─── Utilità ─────────────────────────────────────────────────────────────────
 
 function toSlug(s: string): string {
   return s
@@ -69,7 +69,7 @@ function toSlug(s: string): string {
     .replace(/[\u0300-\u036f]/g, '')
     .trim()
     .replace(/\s+/g, '_')
-    .replace(/[^a-z0-9_]/g, '')
+    .replace(/[\u0300-\u036f]/g, '')
 }
 
 function namesMatch(a: string, b: string): boolean {
@@ -106,7 +106,6 @@ function matchHeader(
   }
   if (!raw) return empty
 
-  // Colonna line-items: "↳ NomeCol (NomeGruppo › tipo)"
   if (raw.startsWith('↳') || raw.startsWith('→')) {
     const m = raw.match(/^[↳→]\s+(.+?)\s*\((.+?)\s*[›>]/)
     if (m) {
@@ -125,7 +124,6 @@ function matchHeader(
     return { ...empty, isLineItems: true }
   }
 
-  // Campo normale: estrai nome rimuovendo "(tipo)" finale
   const nomePart = raw.replace(/\s*\([^)]*\)\s*$/, '').trim()
   const v = variabili.find(v => namesMatch(v.nome, nomePart))
   if (v) return {
@@ -145,7 +143,7 @@ function matchHeader(
   return empty
 }
 
-// ─── Helper: risoluzione reference (usato sia in POST preview che in PUT) ────
+// ─── Helper: risoluzione reference ───────────────────────────────────────────
 
 async function resolveRef(
   label: string,
@@ -208,14 +206,12 @@ export async function POST(req: NextRequest) {
     const refCache = new Map<string, { id: string; label: string } | null>()
 
     for (const ws of wb.worksheets) {
-      // Salta foglio nascosto opzioni
       if (ws.name === '__opzioni') continue
 
       const sheetName = ws.name
       let slug: string | null = null
       const errors: string[] = []
 
-      // Riga 2: cerca "slug:xxx"
       const row2val = String(ws.getCell(2, 1).value ?? '').toLowerCase()
       const slugMatch = row2val.match(/slug:([a-z0-9_-]+)/)
       if (slugMatch) {
@@ -239,7 +235,6 @@ export async function POST(req: NextRequest) {
 
       const variabili = (variabiliBySlug[slug!] ?? []).sort((a, b) => a.ordine - b.ordine)
 
-      // Riga 3: intestazioni
       const headerRow = ws.getRow(3)
       const columns: ParsedColumn[] = []
       const unmatchedHeaders: string[] = []
@@ -257,7 +252,6 @@ export async function POST(req: NextRequest) {
         errors.push('Nessuna colonna trovata nella riga 3. Verifica il formato del file.')
       }
 
-      // Righe 4+: dati
       const rows: ParsedRow[] = []
       ws.eachRow({ includeEmpty: false }, (row, rowNumber) => {
         if (rowNumber <= 3) return
@@ -271,7 +265,7 @@ export async function POST(req: NextRequest) {
         rows.push({ excelRow: rowNumber, values })
       })
 
-      // ── Pre-risoluzione reference ────────────────────────────────────────
+      // Pre-risoluzione reference
       const refPreviews: RefPreviewResult[] = []
       const refCols = columns.filter(c =>
         c.matched && (c.tipo === 'reference' || c.tipo === 'multi-reference') && c.referenceTo
@@ -294,12 +288,9 @@ export async function POST(req: NextRequest) {
             if (!label) continue
             const result = await resolveRef(label, col.referenceTo!, anagraficheMap, refCache)
             refPreviews.push({
-              rowIndex: ri,
-              colIndex: col.index,
-              label,
+              rowIndex: ri, colIndex: col.index, label,
               referenceTo: col.referenceTo!,
-              resolved: !!result,
-              foundId: result?.id,
+              resolved: !!result, foundId: result?.id,
             })
           }
         }
@@ -365,6 +356,7 @@ export async function PUT(req: NextRequest) {
     const userId = new mongoose.Types.ObjectId(session.user.id)
 
     const refCache = new Map<string, { id: string; label: string } | null>()
+    const selectCache = new Map<string, Map<string, string>>()
     const results = []
 
     for (const sheet of sheets) {
@@ -439,6 +431,32 @@ export async function PUT(req: NextRequest) {
             continue
           }
 
+          // Campi select: converti etichetta → valore
+          if (variabile.tipo === 'select') {
+            const raw = rawVal !== null && rawVal !== undefined ? String(rawVal).trim() : ''
+            if (raw === '') {
+              dati[col.variabileSlug] = null
+            } else {
+              const cacheKey = `${slug}:${col.variabileSlug}`
+              if (!selectCache.has(cacheKey)) {
+                const opts = await SelectOption.find({
+                  anagraficaSlug: slug,
+                  variabileSlug: col.variabileSlug,
+                }).lean()
+                const map = new Map<string, string>()
+                for (const o of opts) {
+                  map.set(o.etichetta.toLowerCase(), o.valore)
+                  map.set(o.valore.toLowerCase(), o.valore)
+                }
+                selectCache.set(cacheKey, map)
+              }
+              const optsMap = selectCache.get(cacheKey)!
+              const resolved = optsMap.get(raw.toLowerCase())
+              dati[col.variabileSlug] = resolved ?? raw
+            }
+            continue
+          }
+
           dati[col.variabileSlug] = coerce(rawVal, variabile.tipo)
         }
 
@@ -459,38 +477,44 @@ export async function PUT(req: NextRequest) {
         }
 
         toInsert.push({
-          anagraficaSlug: slug, dati, tags: [],
-          creataDa: userId, modificataDa: userId, versione: 1,
-          createdAt: new Date(), updatedAt: new Date(),
+          anagraficaSlug: slug,
+          dati,
+          attiva: true,
+          versione: 1,
+          creataDa: userId,
+          modificataDa: userId,
+          tags: [],
         })
       }
 
+      // Inserimento batch
       let inserted = 0
-      for (let i = 0; i < toInsert.length; i += 50) {
-        const batch = toInsert.slice(i, i + 50)
+      let insertErrors = 0
+      if (toInsert.length > 0) {
         try {
-          await SchedaModel.insertMany(batch, { ordered: false })
-          inserted += batch.length
+          await SchedaModel.insertMany(toInsert, { ordered: false })
+          inserted = toInsert.length
         } catch (e: unknown) {
-          if (e && typeof e === 'object' && 'insertedDocs' in e) {
-            const ie = e as { insertedDocs: unknown[] }
-            inserted += ie.insertedDocs.length
-            sheetErrors.push({ rowExcel: 0, message: `Batch parziale: ${ie.insertedDocs.length}/${batch.length} inseriti` })
-          } else {
-            sheetErrors.push({ rowExcel: 0, message: String(e) })
-          }
+          const bulk = e as { insertedDocs?: unknown[]; writeErrors?: unknown[] }
+          inserted     = bulk.insertedDocs?.length ?? 0
+          insertErrors = bulk.writeErrors?.length ?? 0
         }
       }
 
-      const skipped = rows.filter(r => !r.include).length
-      results.push({ slug, nome: anaMap[slug]?.nome ?? slug, inserted, skipped, errors: sheetErrors, unresolvedRefs })
+      results.push({
+        slug,
+        inserted,
+        insertErrors,
+        errors: sheetErrors,
+        skipped: rows.filter(r => !r.include).length,
+        unresolvedRefs,
+      })
     }
 
-    const totalInserted = results.reduce((s, r) => s + r.inserted, 0)
-    const totalErrors   = results.reduce((s, r) => s + r.errors.length, 0)
-    return NextResponse.json({ results, totalInserted, totalErrors })
+    return NextResponse.json({ results })
+
   } catch (err) {
     console.error('[PUT /api/controllo/anagrafiche/import]', err)
-    return NextResponse.json({ error: String(err) }, { status: 500 })
+    return NextResponse.json({ error: 'Errore interno' }, { status: 500 })
   }
 }
