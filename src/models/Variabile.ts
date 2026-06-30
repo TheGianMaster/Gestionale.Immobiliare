@@ -11,8 +11,17 @@ export type { TipoVariabile }
 
 const TIPI_VARIABILE: TipoVariabile[] = [
   'text', 'text-area', 'numbers', 'mail', 'phone',
-  'data', 'select', 'reference', 'multi-reference', 'variantID',
+  'data', 'select', 'reference', 'multi-reference', 'variantID', 'line-items',
 ]
+
+export interface IColonnaLineItems {
+  slug:         string
+  nome:         string
+  tipo:         'text' | 'numbers' | 'reference'
+  referenceTo?: string
+  decimali?:    boolean
+  placeholder?: string
+}
 
 export interface IVariabile extends Document {
   slug:             string
@@ -29,6 +38,7 @@ export interface IVariabile extends Document {
   decimali?:        boolean
 
   referenceTo?:     string
+  colonne?:         IColonnaLineItems[]
   soloPerVarianti?: string[]
 
   ordine:           number
@@ -67,6 +77,15 @@ const VariabileSchema = new Schema<IVariabile, IVariabileModel>(
     max:              { type: Number },
     decimali:         { type: Boolean, default: false },
     referenceTo:      { type: String, lowercase: true, trim: true },
+    colonne: [{
+      _id: false,
+      slug:        { type: String, required: true, trim: true },
+      nome:        { type: String, required: true, trim: true },
+      tipo:        { type: String, enum: ['text', 'numbers', 'reference'], required: true },
+      referenceTo: { type: String, lowercase: true, trim: true },
+      decimali:    { type: Boolean, default: false },
+      placeholder: { type: String, trim: true },
+    }],
     soloPerVarianti:  [{ type: String }],
     ordine:           { type: Number, default: 0 },
     visibileInPreview:{ type: Boolean, default: false },

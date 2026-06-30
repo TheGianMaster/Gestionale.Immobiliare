@@ -15,6 +15,20 @@ export type TipoVariabile =
   | 'reference'
   | 'multi-reference'
   | 'variantID'
+  | 'line-items'
+
+/** Definizione di una colonna all'interno di un campo line-items */
+export interface IColonnaLineItems {
+  slug:         string
+  nome:         string
+  tipo:         'text' | 'numbers' | 'reference'
+  referenceTo?: string    // solo se tipo === 'reference'
+  decimali?:    boolean   // solo se tipo === 'numbers'
+  placeholder?: string
+}
+
+/** Valore di una singola riga line-items */
+export type LineItemRow = Record<string, unknown>
 
 export interface IVariabile {
   _id?:             string
@@ -36,6 +50,9 @@ export interface IVariabile {
 
   // Reference
   referenceTo?:     string         // Slug anagrafica target (tipo: reference / multi-reference)
+
+  // Line-items (righe ripetibili)
+  colonne?:         IColonnaLineItems[]  // definizione colonne (solo se tipo === 'line-items')
 
   // Varianti
   soloPerVarianti?: string[]       // Se impostato, campo visibile solo per queste varianteID

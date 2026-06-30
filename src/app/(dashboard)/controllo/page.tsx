@@ -11,21 +11,23 @@ import { useRouter } from 'next/navigation'
 import {
   Settings, Calendar, FolderOpen, Database, Layers,
   Users, Zap, Plus, Pencil, Trash2, Loader2,
-  Check, X, ChevronDown, ChevronRight, Save, Tag,
+  Check, X, ChevronDown, ChevronRight, Save, Tag, Download, FileUp,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { WIPSection } from '@/components/ui/WIPSection'
+import { SezioneImport } from '@/components/controllo/SezioneImport'
 
 // ── Tipi ─────────────────────────────────────────────────────
 interface TipoCalendario { _id: string; nome: string; colore: string }
 interface AnagraficaCfg  { slug: string; nome: string; colore: string; tipiDocumento: string[]; maxDocumentoMB: number }
 
 // ── Sezioni nav ───────────────────────────────────────────────
-type SezioneId = 'calendario' | 'anagrafiche' | 'variabili' | 'varianti' | 'utenze' | 'automazioni'
+type SezioneId = 'calendario' | 'anagrafiche' | 'import' | 'variabili' | 'varianti' | 'utenze' | 'automazioni'
 
 const SEZIONI: { id: SezioneId; label: string; Icona: React.ElementType }[] = [
   { id: 'calendario',   label: 'Calendario',   Icona: Calendar },
   { id: 'anagrafiche',  label: 'Anagrafiche',  Icona: FolderOpen },
+  { id: 'import',       label: 'Import',        Icona: FileUp },
   { id: 'variabili',    label: 'Variabili',    Icona: Database },
   { id: 'varianti',     label: 'Varianti',     Icona: Layers },
   { id: 'utenze',       label: 'Utenze',       Icona: Users },
@@ -145,41 +147,41 @@ function SezioneCalendario() {
 
 // ── SEZIONE ANAGRAFICHE ───────────────────────────────────────
 function SezioneAnagrafiche() {
+  const router = useRouter()
   const [anagrafiche, setAnagrafiche] = useState<AnagraficaCfg[]>([])
   const [loading, setLoading]         = useState(true)
-  const [aperta, setAperta]           = useState<string | null>(null)
-  const [editing, setEditing]         = useState<Record<string, { maxMB: number; tipi: string[] }>>({})
-  const [saving, setSaving]           = useState<string | null>(null)
-  const [tagInput, setTagInput]       = useState<Record<string, string>>({})
+  const [deleting, setDeleting]       = useState<string | null>(null)
+  const [exporting, setExporting]     = useState(false)
+
+  const esportaExcel = async () => {
+    setExporting(true)
+    try {
+      const res = await fetch('/api/controllo/anagrafiche/export')
+      if (!res.ok) { alert('Errore durante l\'export'); return }
+      const blob = await res.blob()
+      const url  = URL.createObjectURL(blob)
+      const a    = document.createElement('a')
+      a.href     = url
+      a.download = `anagrafiche-template-${new Date().toISOString().split('T')[0]}.xlsx`
+      a.click()
+      URL.revokeObjectURL(url)
+    } finally { setExporting(false) }
+  }
 
   const fetch_ana = useCallback(async () => {
     setLoading(true)
-    try { const j = await (await fetch('/api/anagrafiche')).json(); setAnagrafiche(j.data ?? []) }
+    try { const j = await (await fetch('/api/anagrafiche')).json(); setAnagrafiche(j.anagrafiche ?? []) }
     finally { setLoading(false) }
   }, [])
   useEffect(() => { fetch_ana() }, [fetch_ana])
 
-  const initEdit = (ana: AnagraficaCfg) => {
-    if (!editing[ana.slug]) setEditing(p => ({ ...p, [ana.slug]: { maxMB: ana.maxDocumentoMB ?? 10, tipi: [...(ana.tipiDocumento ?? [])] } }))
-    setAperta(p => p === ana.slug ? null : ana.slug)
-  }
-
-  const addTag = (slug: string) => {
-    const t = tagInput[slug]?.trim(); if (!t) return
-    setEditing(p => ({ ...p, [slug]: { ...p[slug], tipi: [...(p[slug]?.tipi ?? []), t] } }))
-    setTagInput(p => ({ ...p, [slug]: '' }))
-  }
-  const removeTag = (slug: string, t: string) =>
-    setEditing(p => ({ ...p, [slug]: { ...p[slug], tipi: (p[slug]?.tipi ?? []).filter(x => x !== t) } }))
-
-  const salva = async (ana: AnagraficaCfg) => {
-    const edit = editing[ana.slug]; if (!edit) return
-    setSaving(ana.slug)
+  const elimina = async (slug: string, nome: string) => {
+    if (!confirm(`Eliminare l'anagrafica "${nome}" e tutti i suoi campi? I dati delle schede NON vengono eliminati.`)) return
+    setDeleting(slug)
     try {
-      await fetch(`/api/controllo/anagrafiche/${ana.slug}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ maxDocumentoMB: edit.maxMB, tipiDocumento: edit.tipi }) })
-      setAnagrafiche(prev => prev.map(a => a.slug === ana.slug ? { ...a, maxDocumentoMB: edit.maxMB, tipiDocumento: edit.tipi } : a))
-      setAperta(null)
-    } finally { setSaving(null) }
+      await fetch(`/api/controllo/anagrafiche/${slug}`, { method: 'DELETE' })
+      setAnagrafiche(prev => prev.filter(a => a.slug !== slug))
+    } finally { setDeleting(null) }
   }
 
   if (loading) return <div className="flex justify-center py-6"><Loader2 className="w-5 h-5 animate-spin" style={{ color: 'var(--color-brand)' }} /></div>
@@ -187,67 +189,40 @@ function SezioneAnagrafiche() {
   return (
     <div>
       <p className="text-sm text-text-secondary mb-4">
-        Configura la dimensione massima dei documenti e i tag disponibili per ciascuna anagrafica.
+        Crea e configura le anagrafiche del gestionale. Ogni anagrafica ha i propri campi, tipi e logiche.
       </p>
+      <div className="flex gap-2 mb-4">
+        <button onClick={() => router.push('/controllo/anagrafiche/nuova')} className="btn-primary flex-1 justify-center">
+          <Plus className="w-4 h-4" /> Crea nuova anagrafica
+        </button>
+        <button onClick={esportaExcel} disabled={exporting || anagrafiche.length === 0} className="btn-secondary gap-2 px-4"
+          title="Esporta template Excel con tutti i campi delle anagrafiche">
+          {exporting
+            ? <Loader2 className="w-4 h-4 animate-spin" />
+            : <Download className="w-4 h-4" />}
+          <span className="hidden sm:inline">{exporting ? 'Generando…' : 'Esporta Excel'}</span>
+        </button>
+      </div>
       <div className="space-y-2">
-        {anagrafiche.map(ana => {
-          const isAperta = aperta === ana.slug; const edit = editing[ana.slug]
-          return (
-            <div key={ana.slug} className="rounded-xl border overflow-hidden" style={{ borderColor: 'var(--color-border)' }}>
-              <button type="button" onClick={() => initEdit(ana)}
-                className="w-full flex items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-surface-hover"
-                style={{ backgroundColor: 'var(--color-surface)' }}>
-                <span className="w-3 h-3 rounded-full" style={{ backgroundColor: ana.colore }} />
-                <span className="flex-1 text-sm font-medium text-text-primary">{ana.nome}</span>
-                <span className="text-xs text-text-muted">Max {edit?.maxMB ?? ana.maxDocumentoMB ?? 10} MB</span>
-                {isAperta ? <ChevronDown className="w-4 h-4 text-text-muted" /> : <ChevronRight className="w-4 h-4 text-text-muted" />}
-              </button>
-              {isAperta && edit && (
-                <div className="px-4 py-4 border-t space-y-4" style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-bg)' }}>
-                  <div>
-                    <label className="block text-xs font-medium text-text-muted mb-1.5">Dimensione massima documento (MB)</label>
-                    <div className="flex items-center gap-2">
-                      <input type="number" min={1} max={100} value={edit.maxMB}
-                        onChange={e => setEditing(p => ({ ...p, [ana.slug]: { ...p[ana.slug], maxMB: Number(e.target.value) } }))}
-                        className="w-24 px-3 py-2 rounded-lg text-sm border"
-                        style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }} />
-                      <span className="text-sm text-text-muted">MB</span>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="flex items-center gap-1.5 text-xs font-medium text-text-muted mb-2">
-                      <Tag className="w-3.5 h-3.5" /> Tag tipi documento
-                    </label>
-                    <div className="flex flex-wrap gap-2 mb-3 min-h-[28px]">
-                      {edit.tipi.map(t => (
-                        <span key={t} className="flex items-center gap-1 text-xs px-2.5 py-1 rounded-full border"
-                          style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-secondary)' }}>
-                          {t}
-                          <button type="button" onClick={() => removeTag(ana.slug, t)} className="hover:opacity-60">&times;</button>
-                        </span>
-                      ))}
-                      {edit.tipi.length === 0 && <span className="text-xs text-text-muted italic">Verranno usati i default di sistema</span>}
-                    </div>
-                    <div className="flex gap-2">
-                      <input value={tagInput[ana.slug] ?? ''} onChange={e => setTagInput(p => ({ ...p, [ana.slug]: e.target.value }))}
-                        onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addTag(ana.slug) } }}
-                        placeholder="es. Contratto, Fattura..."
-                        className="flex-1 px-3 py-2 rounded-lg text-sm border"
-                        style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }} />
-                      <button type="button" onClick={() => addTag(ana.slug)} className="btn-secondary"><Plus className="w-4 h-4" /></button>
-                    </div>
-                  </div>
-                  <div className="flex justify-end gap-2 pt-1">
-                    <button onClick={() => setAperta(null)} className="btn-ghost text-xs">Annulla</button>
-                    <button onClick={() => salva(ana)} disabled={saving === ana.slug} className="btn-primary text-xs">
-                      {saving === ana.slug ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />} Salva
-                    </button>
-                  </div>
-                </div>
-              )}
+        {anagrafiche.length === 0 && (
+          <p className="text-sm text-text-muted text-center py-4">Nessuna anagrafica. Creane una.</p>
+        )}
+        {anagrafiche.map(ana => (
+          <div key={ana.slug} className="flex items-center gap-3 px-4 py-3 rounded-xl border"
+            style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-surface)' }}>
+            <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: ana.colore ?? '#6366F1' }} />
+            <div className="flex-1 min-w-0">
+              <span className="font-medium text-sm text-text-primary">{ana.nome}</span>
+              <span className="ml-2 text-xs" style={{ color: 'var(--color-text-muted)' }}>{ana.slug}</span>
             </div>
-          )
-        })}
+            <button onClick={() => router.push(`/controllo/anagrafiche/${ana.slug}`)} className="btn-secondary text-xs">
+              <Pencil className="w-3.5 h-3.5" /> Modifica
+            </button>
+            <button onClick={() => elimina(ana.slug, ana.nome)} disabled={deleting === ana.slug} className="btn-icon-danger">
+              {deleting === ana.slug ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+            </button>
+          </div>
+        ))}
       </div>
     </div>
   )
@@ -282,6 +257,7 @@ export default function PannelloControlloPage() {
     switch (sezione) {
       case 'calendario':  return <SezioneCalendario />
       case 'anagrafiche': return <SezioneAnagrafiche />
+      case 'import':      return <SezioneImport />
       case 'variabili':
         return <WIPSection
           nome="Variabili"
@@ -312,6 +288,7 @@ export default function PannelloControlloPage() {
   }
 
   const sezioneAttiva = SEZIONI.find(s => s.id === sezione)!
+  const ActiveIcon = sezioneAttiva.Icona
 
   return (
     <div className="h-full animate-slide-up">
@@ -333,7 +310,7 @@ export default function PannelloControlloPage() {
         {/* Sidebar nav */}
         <nav className="w-52 shrink-0 border-r overflow-y-auto py-2"
           style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-surface)' }}>
-          {SEZIONI.map(({ id, label, Icona }) => (
+          {SEZIONI.map(({ id, label, Icona: NavIcon }) => (
             <button
               key={id}
               onClick={() => setSezione(id)}
@@ -349,7 +326,7 @@ export default function PannelloControlloPage() {
                 boxShadow: 'inset 3px 0 0 var(--color-brand)',
               } : {}}
             >
-              <Icona className="w-4 h-4 shrink-0" />
+              <NavIcon className="w-4 h-4 shrink-0" />
               {label}
             </button>
           ))}
@@ -359,7 +336,7 @@ export default function PannelloControlloPage() {
         <div className="flex-1 overflow-y-auto p-6">
           <div className="max-w-2xl">
             <div className="flex items-center gap-2 mb-6">
-              <sezioneAttiva.Icona className="w-5 h-5" style={{ color: 'var(--color-brand)' }} />
+              <ActiveIcon className="w-5 h-5" style={{ color: 'var(--color-brand)' }} />
               <h2 className="text-base font-semibold text-text-primary">{sezioneAttiva.label}</h2>
             </div>
             {renderSezione()}

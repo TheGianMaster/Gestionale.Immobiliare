@@ -59,12 +59,17 @@ function fieldSchema(v: IVariabile): z.ZodTypeAny {
       base = z.string()
       break
 
+    case 'line-items':
+      // Array di righe; ogni riga e' un oggetto libero — validazione strutturata lato campo
+      base = z.array(z.record(z.unknown()))
+      break
+
     default:
       base = z.unknown()
   }
 
   if (!v.obbligatorio) {
-    if (v.tipo === 'multi-reference') {
+    if (v.tipo === 'multi-reference' || v.tipo === 'line-items') {
       return (base as z.ZodArray<z.ZodTypeAny>).optional().nullable()
     }
     return base.optional().nullable()

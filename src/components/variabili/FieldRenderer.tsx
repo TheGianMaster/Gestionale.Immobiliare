@@ -17,6 +17,7 @@ import { SelectField } from './fields/SelectField'
 import { ReferenceField } from './fields/ReferenceField'
 import { MultiReferenceField } from './fields/MultiReferenceField'
 import { VariantIDField } from './fields/VariantIDField'
+import { LineItemsField } from './fields/LineItemsField'
 
 export interface FieldRendererProps {
   variabile: IVariabile
@@ -62,6 +63,8 @@ export function FieldRenderer({
       return <MultiReferenceField {...sharedProps} anagraficaSlug={anagraficaSlug} />
     case 'variantID':
       return <VariantIDField {...sharedProps} anagraficaSlug={anagraficaSlug} />
+    case 'line-items':
+      return <LineItemsField {...sharedProps} />
     default:
       return (
         <div className="text-xs text-text-muted italic py-1">
