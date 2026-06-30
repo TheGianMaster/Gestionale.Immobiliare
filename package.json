@@ -12,7 +12,9 @@
     "seed:admin": "tsx scripts/seed-admin.ts",
     "seed:data": "tsx scripts/seed-data.ts",
     "seed:all": "npm run seed:admin && npm run seed:data",
-    "setup:r2": "tsx scripts/setup-r2.ts"
+    "setup:r2": "tsx scripts/setup-r2.ts",
+    "reset:anagrafiche": "tsx scripts/reset-anagrafiche.ts",
+    "import:anagrafiche": "tsx scripts/import-anagrafiche.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.600.0",
@@ -54,6 +56,10 @@
     "prettier": "^3.3.2",
     "tailwindcss": "^3.4.4",
     "tsx": "^4.16.2",
-    "typescript": "^5.5.2"
+    "typescript": "^5.5.2",
+    "exceljs": "^4.4.0"
+  },
+  "overrides": {
+    "postcss": "^8.5.10"
   }
 }
