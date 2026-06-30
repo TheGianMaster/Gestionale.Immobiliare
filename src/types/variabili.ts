@@ -1,4 +1,8 @@
-// Tipi variabili (field types) — modello completo in T-021
+/**
+ * src/types/variabili.ts
+ * Tipo frontend per IVariabile — usato da FieldRenderer e tutti i field components.
+ * Corrisponde al documento Mongoose in src/models/Variabile.ts.
+ */
 
 export type TipoVariabile =
   | 'text'
@@ -13,21 +17,29 @@ export type TipoVariabile =
   | 'variantID'
 
 export interface IVariabile {
-  _id: string
-  slug: string
-  label: string
-  tipo: TipoVariabile
-  obbligatorio: boolean
-  descrizione?: string
-  placeholder?: string
-  anagraficaRef: string
-  visibileInPreview: boolean
-  ordine: number
-  // Campi tipo-specifici
-  maxLength?: number     // text
-  min?: number           // numbers
-  max?: number           // numbers
-  decimali?: boolean     // numbers
-  targetAnagrafica?: string  // reference, multi-reference
-  displayField?: string      // reference, multi-reference
+  _id?:             string
+  slug:             string         // Identificativo campo, es: "nome", "data_nascita"
+  nome:             string         // Etichetta visualizzata nel form/lista
+  tipo:             TipoVariabile
+  anagraficaSlug:   string
+  obbligatorio:     boolean
+  descrizione?:     string         // Tooltip/help
+  placeholder?:     string
+
+  // Validazione testo
+  maxLength?:       number
+
+  // Validazione numeri
+  min?:             number
+  max?:             number
+  decimali?:        boolean        // true = 2 decimali, false = intero
+
+  // Reference
+  referenceTo?:     string         // Slug anagrafica target (tipo: reference / multi-reference)
+
+  // Varianti
+  soloPerVarianti?: string[]       // Se impostato, campo visibile solo per queste varianteID
+
+  ordine?:          number
+  visibileInPreview?: boolean
 }

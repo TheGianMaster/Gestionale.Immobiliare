@@ -1,9 +1,11 @@
-// Redirect alla dashboard se autenticato, altrimenti al login
-// La logica di redirect è gestita dal middleware (T-011)
+/**
+ * src/app/page.tsx
+ * Route radice — reindirizza a /home (dashboard).
+ * Non fare mai redirect('/login') qui: crea un loop con il middleware.
+ * L'autenticazione è gestita dal middleware (src/middleware.ts).
+ */
 import { redirect } from 'next/navigation'
 
-export default function Home() {
-  // Il middleware NextAuth gestisce il redirect
-  // Questa pagina non dovrebbe mai essere raggiunta direttamente
-  redirect('/login')
+export default function RootPage() {
+  redirect('/home')
 }
