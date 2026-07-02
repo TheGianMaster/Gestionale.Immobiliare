@@ -15,6 +15,7 @@
     "setup:r2": "tsx scripts/setup-r2.ts",
     "reset:anagrafiche": "tsx scripts/reset-anagrafiche.ts",
     "reset:schede": "tsx scripts/reset-schede.ts",
+    "reset:tutte-schede": "tsx scripts/reset-tutte-schede.ts",
     "import:anagrafiche": "tsx scripts/import-anagrafiche.ts"
   },
   "dependencies": {

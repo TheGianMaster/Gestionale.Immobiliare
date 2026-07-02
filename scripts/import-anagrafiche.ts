@@ -56,9 +56,15 @@ const ANAGRAFICHE: AnagraficaInput[] = [
   // 1. PORTAFOGLI
   {
     slug: 'portafogli', nome: 'Portafogli', icona: 'Wallet', colore: '#6366F1', ordine: 1,
-    previewColumns: ['nome'],
+    previewColumns: ['titolo'],
     variabili: [
-      { slug: 'nome', nome: 'Nome', tipo: 'text', obbligatorio: true, visibileInPreview: true, ordine: 0 },
+      { slug: 'titolo',           nome: 'Titolo',            tipo: 'text',      obbligatorio: true,  visibileInPreview: true, ordine: 0 },
+      { slug: 'sottotitolo',      nome: 'Sottotitolo',       tipo: 'text',      obbligatorio: false, ordine: 1 },
+      { slug: 'descrizione',      nome: 'Descrizione',       tipo: 'text-area', obbligatorio: false, ordine: 2 },
+      { slug: 'debito_associato', nome: 'Debito associato',  tipo: 'reference', obbligatorio: false, ordine: 3, referenceTo: 'debiti' },
+      { slug: 'data_apertura',    nome: 'Data apertura',     tipo: 'data',      obbligatorio: false, ordine: 4 },
+      { slug: 'data_chiusura',    nome: 'Data chiusura',     tipo: 'data',      obbligatorio: false, ordine: 5 },
+      { slug: 'fondi_disponibili',nome: 'Fondi disponibili', tipo: 'numbers',   obbligatorio: false, ordine: 6, decimali: true },
     ],
   },
 
@@ -205,7 +211,20 @@ const ANAGRAFICHE: AnagraficaInput[] = [
     slug: 'debiti', nome: 'Debiti', icona: 'ArrowDownCircle', colore: '#DC2626', ordine: 8,
     previewColumns: ['titolo'],
     variabili: [
-      { slug: 'titolo', nome: 'Titolo', tipo: 'text', obbligatorio: true, visibileInPreview: true, ordine: 0 },
+      { slug: 'titolo',             nome: 'Titolo',               tipo: 'text',      obbligatorio: true,  visibileInPreview: true, ordine: 0 },
+      { slug: 'referente',          nome: 'Referente',            tipo: 'reference', obbligatorio: false, ordine: 1, referenceTo: 'rubrica' },
+      { slug: 'tipo_debito',        nome: 'Tipo di debito',       tipo: 'select',    obbligatorio: false, ordine: 2,
+        options: ['mutuo', 'prestito', 'finanziamento', 'altro'] },
+      { slug: 'tipo_tasso',         nome: 'Tipo tasso interesse', tipo: 'select',    obbligatorio: false, ordine: 3,
+        options: ['alla francese', 'altro'] },
+      { slug: 'totale_addebitato',  nome: 'Totale addebitato',    tipo: 'numbers',   obbligatorio: false, ordine: 4,  decimali: true },
+      { slug: 'tasso_interesse',    nome: 'Tasso interesse',      tipo: 'numbers',   obbligatorio: false, ordine: 5,  decimali: true },
+      { slug: 'rata_mensile',       nome: 'Rata mensile',         tipo: 'numbers',   obbligatorio: false, ordine: 6,  decimali: true },
+      { slug: 'importo_erogato',    nome: 'Importo erogato',      tipo: 'numbers',   obbligatorio: false, ordine: 7,  decimali: true },
+      { slug: 'data_apertura',      nome: 'Data apertura debito', tipo: 'data',      obbligatorio: false, ordine: 8 },
+      { slug: 'scadenza_prevista',  nome: 'Scadenza prevista',    tipo: 'data',      obbligatorio: false, ordine: 9 },
+      { slug: 'totale_restituito',  nome: 'Totale restituito',    tipo: 'numbers',   obbligatorio: false, ordine: 10, decimali: true },
+      { slug: 'note',               nome: 'Note',                 tipo: 'text-area', obbligatorio: false, ordine: 11 },
     ],
   },
 
