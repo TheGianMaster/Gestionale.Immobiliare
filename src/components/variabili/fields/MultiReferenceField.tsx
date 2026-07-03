@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { X, Search, ExternalLink, Plus } from 'lucide-react'
 import { BaseFieldProps, FieldLabel, FieldError, ViewRow, inputClass, EMPTY } from './_shared'
-import { NewSchedaModal } from '@/components/anagrafica/NewSchedaModal'
 import { cn } from '@/lib/utils'
 
 interface RefValue { id: string; label: string }
@@ -22,7 +21,6 @@ export function MultiReferenceField({ variabile, valore, mode, onChange, error }
   const [query,   setQuery]   = useState('')
   const [open,    setOpen]    = useState(false)
   const [results, setResults] = useState<RefValue[]>([])
-  const [showNew, setShowNew] = useState(false)
   const wrapRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -122,7 +120,7 @@ export function MultiReferenceField({ variabile, valore, mode, onChange, error }
           {targetSlug && (
             <button
               type="button"
-              onClick={() => setShowNew(true)}
+              onClick={() => window.open(`/anagrafica/${targetSlug}/new`, '_blank')}
               title={`Nuova scheda in ${targetNome}`}
               className="btn-icon w-10 h-10 rounded-lg border shrink-0"
               style={{ borderColor: 'var(--color-border)', color: 'var(--color-brand)' }}
@@ -152,15 +150,6 @@ export function MultiReferenceField({ variabile, valore, mode, onChange, error }
       </div>
 
       <FieldError message={error} />
-
-      {showNew && targetSlug && (
-        <NewSchedaModal
-          anagraficaSlug={targetSlug}
-          anagraficaNome={targetNome}
-          onCreated={ref => { add(ref); setShowNew(false) }}
-          onClose={() => setShowNew(false)}
-        />
-      )}
     </div>
   )
 }

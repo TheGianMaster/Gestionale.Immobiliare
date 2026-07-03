@@ -4,7 +4,6 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import { X, Search, ExternalLink, Plus } from 'lucide-react'
 import { BaseFieldProps, FieldLabel, FieldError, ViewRow, inputClass, EMPTY } from './_shared'
-import { NewSchedaModal } from '@/components/anagrafica/NewSchedaModal'
 import { cn } from '@/lib/utils'
 
 interface RefValue { id: string; label: string }
@@ -47,7 +46,6 @@ export function ReferenceField({ variabile, valore, mode, onChange, error }: Ref
 
   const [query,   setQuery]   = useState('')
   const [open,    setOpen]    = useState(false)
-  const [showNew, setShowNew] = useState(false)
   const wrapRef = useRef<HTMLDivElement>(null)
 
   const { results, searching } = useSearch(targetSlug, query, open)
@@ -121,7 +119,7 @@ export function ReferenceField({ variabile, valore, mode, onChange, error }: Ref
             {targetSlug && (
               <button
                 type="button"
-                onClick={() => setShowNew(true)}
+                onClick={() => window.open(`/anagrafica/${targetSlug}/new`, '_blank')}
                 title={`Nuova scheda in ${targetNome}`}
                 className="btn-icon w-10 h-10 rounded-lg border shrink-0"
                 style={{ borderColor: 'var(--color-border)', color: 'var(--color-brand)' }}
@@ -155,15 +153,6 @@ export function ReferenceField({ variabile, valore, mode, onChange, error }: Ref
       </div>
 
       <FieldError message={error} />
-
-      {showNew && targetSlug && (
-        <NewSchedaModal
-          anagraficaSlug={targetSlug}
-          anagraficaNome={targetNome}
-          onCreated={ref => { onChange?.(ref); setShowNew(false) }}
-          onClose={() => setShowNew(false)}
-        />
-      )}
     </div>
   )
 }

@@ -119,3 +119,47 @@ export default async function PannelloPage() {
 ```
 
 **NOTA:** Il middleware in `src/middleware.ts` fa già il redirect per le route `/controllo/*`. Questo check nel componente è una doppia sicurezza (defense in depth).
+
+---
+
+## 5. SEZIONE AUTOMAZIONI (IMPLEMENTATA)
+
+La sezione Automazioni NON è più WIP. Ha un layout reale con card per ogni wizard disponibile.
+
+### Componente
+`SezioneAutomazioni` in `src/app/(dashboard)/controllo/page.tsx`
+
+### UI
+```tsx
+// Card per ogni automazione:
+<div className="flex items-center gap-4 px-4 py-4 rounded-xl border">
+  <div className="w-10 h-10 rounded-xl ..."><Zap /></div>
+  <div className="flex-1">
+    <p>Nuovo debito</p>
+    <p>Crea Debito + Portafogli + Ricavo...</p>
+  </div>
+  <button onClick={() => setShowWizard(true)}>Avvia</button>
+</div>
+{showWizard && <NuovoDebitoWizard onClose={() => setShowWizard(false)} />}
+```
+
+### Wizard disponibili
+| Nome | Componente | API |
+|------|------------|-----|
+| Nuovo Debito | `NuovoDebitoWizard` | `POST /api/automazioni/nuovo-debito` |
+
+Per documentazione completa del wizard → `docs/11-AUTOMAZIONI.md`
+
+---
+
+## 6. MAPPA TAB PANNELLO CONTROLLO
+
+| Tab | Componente | Stato |
+|-----|-----------|-------|
+| Anagrafiche | SezioneAnagrafiche | ✅ Attivo (import/export Excel) |
+| Varianti | WIPSection | 🚧 WIP |
+| Variabili | WIPSection | 🚧 WIP |
+| Utenze | WIPSection | 🚧 WIP |
+| Documenti | WIPSection | 🚧 WIP |
+| Automazioni | SezioneAutomazioni | ✅ Attivo (wizard Nuovo Debito) |
+

@@ -18,6 +18,7 @@ import { cn } from '@/lib/utils'
 import { WIPSection } from '@/components/ui/WIPSection'
 import { SezioneImport } from '@/components/controllo/SezioneImport'
 import { SezioneLayout } from '@/components/controllo/SezioneLayout'
+import { NuovoDebitoWizard } from '@/components/automazioni/NuovoDebitoWizard'
 
 // ── Tipi ─────────────────────────────────────────────────────
 interface TipoCalendario { _id: string; nome: string; colore: string }
@@ -231,6 +232,38 @@ function SezioneAnagrafiche() {
   )
 }
 
+// ── SEZIONE AUTOMAZIONI ───────────────────────────────────────
+function SezioneAutomazioni() {
+  const [showWizard, setShowWizard] = useState(false)
+  return (
+    <div>
+      <p className="text-sm text-text-secondary mb-6">
+        Azioni guidate che automatizzano la creazione di più schede collegate in un unico flusso.
+      </p>
+      <div className="flex items-center gap-4 px-4 py-4 rounded-xl border"
+        style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-surface)' }}>
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+          style={{ backgroundColor: 'var(--color-brand-light)' }}>
+          <Zap className="w-5 h-5" style={{ color: 'var(--color-brand)' }} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-text-primary">Nuovo debito</p>
+          <p className="text-xs text-text-secondary mt-0.5">
+            Crea Debito + Portafogli + Ricavo di apertura in un unico wizard guidato.
+          </p>
+        </div>
+        <button
+          onClick={() => setShowWizard(true)}
+          className="btn-primary shrink-0 flex items-center gap-2"
+        >
+          <Plus className="w-4 h-4" /> Avvia
+        </button>
+      </div>
+      {showWizard && <NuovoDebitoWizard onClose={() => setShowWizard(false)} />}
+    </div>
+  )
+}
+
 // ── PAGINA PRINCIPALE ─────────────────────────────────────────
 export default function PannelloControlloPage() {
   const router = useRouter()
@@ -282,12 +315,7 @@ export default function PannelloControlloPage() {
           nota="Il tempo di logout automatico (attualmente 72 ore) sara configurabile da questa sezione per ogni utente o a livello globale."
         />
       case 'automazioni':
-        return <WIPSection
-          nome="Automazioni"
-          descrizione="Crea regole automatiche (trigger → azione). Esempi: al salvataggio di una scheda invia una notifica, quando scade un contratto crea un evento nel calendario."
-          icona={<Zap className="w-8 h-8" style={{ color: 'var(--color-brand)' }} />}
-          nota="Le automazioni intelligenti saranno supportate da AI per suggerire e ottimizzare le regole."
-        />
+        return <SezioneAutomazioni />
     }
   }
 

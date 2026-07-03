@@ -204,3 +204,61 @@ export default async function DashboardLayout({
 - Testo mai < 14px su mobile
 - Form su mobile: campi full-width, label sempre visibile (non solo placeholder)
 - Tabelle su mobile: trasforma in card list (ogni riga → card)
+
+---
+
+## 6. SEZIONI STATICHE SIDEBAR (SezioneFissa)
+
+Le sezioni dinamiche (Anagrafiche) vengono dal DB tramite `/api/controllo/layout`.
+Le sezioni statiche usano il componente `SezioneFissa` hardcoded in `Sidebar.tsx`.
+
+```typescript
+// Interfaccia SezioneFissa
+{
+  label: string                                                // nome sezione
+  collapsed: boolean                                           // da props Sidebar
+  items: { href: string; label: string; icon: React.ElementType }[]
+  onNavClick?: () => void
+}
+```
+
+**Sezioni statiche attuali:**
+- **Bilancio** — `items: [{ href: '/bilancio/overview', label: 'Overview', icon: BarChart2 }]`
+
+**Ordine voci nella sidebar (espansa):**
+1. Voci builtin (Dashboard, Calendario) — dal DB layout
+2. Sezioni anagrafiche dinamiche — dal DB layout
+3. **Bilancio** (SezioneFissa — hardcoded)
+4. Separatore + Pannello Controllo (solo admin — hardcoded)
+
+---
+
+## 7. MODALITÀ COLLAPSED E SEZIONEFISSA
+
+In modalità `icons` (solo icone), `SezioneFissa` renderizza:
+```tsx
+<>
+  <div className="my-2 border-t" />   {/* separatore visivo */}
+  <VoceNav href="..." icona={Icon} collapsed={true} />  {/* solo icona, no testo */}
+</>
+```
+
+Il tooltip `title` è fornito da `VoceNav` (`title={collapsed ? label : undefined}`).
+
+---
+
+## 8. MAPPA ROUTE DASHBOARD COMPLETA
+
+```
+/home                          ← Dashboard principale
+/anagrafica/[slug]             ← Lista schede
+/anagrafica/[slug]/new         ← Nuova scheda
+/anagrafica/[slug]/[id]/view   ← Vista scheda
+/anagrafica/[slug]/[id]/edit   ← Modifica scheda
+/anagrafica/[slug]/[id]/documenti ← Documenti scheda
+/calendario                    ← Calendario
+/notifiche                     ← Lista notifiche
+/controllo                     ← Pannello Controllo (admin)
+/bilancio/overview             ← Bilancio Overview (WIP)
+```
+

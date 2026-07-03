@@ -31,9 +31,11 @@ Quando passi a `Da convalidare` o `Done`, **DEVI** compilare:
 | `docs/05-DOCUMENTI.md` | Upload R2, tipi doc, gestione file | Fase 7 |
 | `docs/06-CALENDARIO.md` | Vista mese/giorno, eventi, etichette | Fase 8 |
 | `docs/07-NOTIFICHE.md` | Bell, counter, sistema notifiche | Fase 9 |
-| `docs/08-PANNELLO.md` | Pannello controllo, sezioni WIP | Fase 10 |
+| `docs/08-PANNELLO.md` | Pannello controllo, Automazioni, tab | Fase 10-11 |
 | `docs/09-PALETTE.md` | Palette colori, design tokens, CSS vars | Fase 12 |
-| `docs/10-UI-LAYOUT.md` | Layout, sidebar, header, responsive | Fase 3 |
+| `docs/10-UI-LAYOUT.md` | Layout, sidebar, SezioneFissa, route map | Fase 3+ |
+| `docs/11-AUTOMAZIONI.md` | Wizard Nuovo Debito, API atomica, RefSearch | Fase 11 |
+| `docs/12-BILANCIO.md` | Sezione Bilancio, SezioneFissa, route WIP | Fase 12 |
 | `skills/README-SKILLS.md` | Sistema skills agente, ottimizzazione token | Sempre |
 
 ---
@@ -1099,4 +1101,234 @@ Endpoint CRUD per gli eventi calendario. Usa il cluster `MONGODB_URI_EVENTI`.
 - [x] `GET /api/calendario?giorno=[YYYY-MM-DD]` → eventi del giorno
 - [x] `POST /api/calendario` → crea evento
 - [x] `PUT /api/calendario/[id]` → modifica evento
-- [ ] `DELETE /ap
+- [ ] `DELETE /api/calendario/[id]` → elimina evento (soft delete)
+
+**Note sviluppo:**
+API su cluster `MONGODB_URI_EVENTI`. GET supporta filtro per `mese` (YYYY-MM, range inizio/fine mese) e `giorno` (YYYY-MM-DD, range 00:00-23:59). Tutti gli eventi hanno `attivo: true` (soft-delete). DELETE imposta `attivo: false`. I campi `schedaId` + `anagraficaSlug` collegano opzionalmente un evento a una scheda anagrafica.
+
+**File toccati:**
+- `src/app/api/calendario/route.ts` — creato (GET + POST)
+- `src/app/api/calendario/[id]/route.ts` — creato (PUT + DELETE)
+
+---
+
+## 📋 TICKET — FASE 10: PANNELLO DI CONTROLLO
+
+---
+
+### T-090 — Struttura Pannello Controllo + Import/Export Anagrafiche
+**Stato:** `🟢 Done`
+**Priorità:** Alta
+**Dipendenze:** T-030, T-040
+**Sub-README:** `docs/08-PANNELLO.md`
+
+**Descrizione:**
+Pagina pannello controllo con sezioni tab. Sezione Anagrafiche con import da Excel e export. Sezione Automazioni con wizard.
+
+**Note sviluppo:**
+Pannello a tab con SezioneAnagrafiche (import/export), SezioneAutomazioni (wizard Nuovo Debito), resto WIP. Accesso solo admin via middleware.
+
+**File toccati:**
+- `src/app/(dashboard)/controllo/page.tsx` — creato + aggiornato
+- `src/app/api/controllo/anagrafiche/import/route.ts` — creato
+- `src/app/api/controllo/anagrafiche/export/route.ts` — creato
+- `src/app/api/controllo/layout/route.ts` — creato
+
+---
+
+## 📋 TICKET — FASE 11: AUTOMAZIONI & WIZARD
+
+---
+
+### T-100 — Bulk Delete Schede (multi-select in PreviewTable)
+**Stato:** `🟢 Done`
+**Priorità:** Alta
+**Dipendenze:** T-041, T-042
+**Sub-README:** `docs/03-ANAGRAFICA.md`
+
+**Descrizione:**
+Selezione multipla nella lista schede (PreviewTable) con eliminazione bulk confermata.
+
+**Criteri di accettazione:**
+- [x] Checkbox per ogni riga in PreviewTable (+ "seleziona tutto" nell'header)
+- [x] Stato `indeterminate` per checkbox header quando selezione parziale
+- [x] Bulk action bar appare sopra la tabella quando ≥1 riga selezionata
+- [x] Bulk action bar mostra: conteggio selezionati, "Deseleziona tutto", bottone "Elimina selezionate"
+- [x] Modale conferma bulk separato da quello singolo
+- [x] `DELETE /api/anagrafiche/[slug]/schede` con body `{ ids: string[] }` → `{ deleted: number }`
+- [x] Riga selezionata evidenziata con sfondo brand
+- [x] La selezione si azzera al cambio ricerca/pagina
+
+**Note sviluppo:**
+PreviewTable usa `selectedIds: Set<string>`. Il checkbox cell ha `onClick` con `e.stopPropagation()` per non triggerare la navigazione alla riga. Il handler bulk DELETE chiama `DELETE /api/anagrafiche/${slug}/schede` (sull'endpoint collection, non su `[id]`).
+
+**File toccati:**
+- `src/components/anagrafica/PreviewTable.tsx` — aggiornato (checkbox, bulk bar, BulkDeleteConfirmModal)
+- `src/app/api/anagrafiche/[slug]/schede/route.ts` — aggiunto handler DELETE bulk
+
+---
+
+### T-101 — Pulsante + su campi Reference/MultiReference
+**Stato:** `🟢 Done`
+**Priorità:** Media
+**Dipendenze:** T-055
+**Sub-README:** `docs/04-VARIABILI.md`
+
+**Descrizione:**
+Accanto a ogni campo reference e multi-reference appare un `+` che apre `/anagrafica/{slug}/new` in una nuova scheda del browser.
+
+**Criteri di accettazione:**
+- [x] ReferenceField: `+` visibile quando il campo non è valorizzato (accanto all'input di ricerca)
+- [x] MultiReferenceField: `+` sempre visibile (accanto all'input di aggiunta)
+- [x] Click → `window.open('/anagrafica/${targetSlug}/new', '_blank')`
+- [x] Rimosso import `NewSchedaModal` (componente inesistente che rompeva la build)
+- [x] Stesso comportamento nel componente `RefSearch` di `NuovoDebitoWizard`
+
+**File toccati:**
+- `src/components/variabili/fields/ReferenceField.tsx` — rimosso NewSchedaModal, sostituito con window.open
+- `src/components/variabili/fields/MultiReferenceField.tsx` — idem
+- `src/components/automazioni/NuovoDebitoWizard.tsx` — aggiunto `+` a RefSearch, importato Plus da lucide
+
+---
+
+### T-102 — Wizard "Nuovo Debito" (Automazioni)
+**Stato:** `🟢 Done`
+**Priorità:** Alta
+**Dipendenze:** T-090, T-041
+**Sub-README:** `docs/11-AUTOMAZIONI.md`
+
+**Descrizione:**
+Wizard multi-step in Pannello Controllo > Automazioni. Al completamento crea atomicamente 3 record: Debito + Portafogli + Ricavo.
+
+**Criteri di accettazione:**
+- [x] Step 1: tipo debito (infruttifero | bancario con sottotipo)
+- [x] Step 2-4: solo per bancario — tipo tasso, dettagli tasso, dettagli piano
+- [x] Step 5: dati comuni (titolo, importo, scadenza, referente, casa, note)
+- [x] Step 6: recap + conferma
+- [x] Schermata risultato: link ai 3 record creati o dettaglio errore con codice
+- [x] Rollback atomico: se fallisce Portafogli → elimina Debito; se fallisce Ricavo → elimina entrambi
+- [x] Ricavo auto-compilato: stato_ricavo=incassata, tipo_ricavo=debito, descrizione, data, casa
+- [x] Escape chiude il wizard
+
+**Campi creati nel ricavo:**
+```
+titolo:           "apertura debito {titoloDebito}"
+importo_totale:   importoErogato (number)
+fondi_destinazione: [{ fondo: {id, label: titolo portafogli}, importo }]
+stato_ricavo:     "incassata"
+tipo_ricavo:      "debito"
+descrizione:      "incasso dell'importo erogato dal debito: {titoloDebito}"
+data:             data di creazione (ISO YYYY-MM-DD)
+casa:             casaRiferimento (se specificata nel wizard, {id, label})
+```
+
+**Codici errore API:**
+```
+ERR_AUTH          — utente non autenticato
+ERR_VALIDATION    — campo obbligatorio mancante o non valido
+ERR_ANA_DEBITI    — anagrafica "debiti" non trovata/attiva
+ERR_ANA_PORTAFOGLI — anagrafica "portafogli" non trovata/attiva
+ERR_ANA_RICAVI    — anagrafica "ricavi" non trovata/attiva
+ERR_CREATE_DEBITO — errore Mongoose creazione debito
+ERR_CREATE_PORTAFOGLI — errore creazione portafogli (debito eliminato)
+ERR_CREATE_RICAVO — errore creazione ricavo (debito + portafogli eliminati)
+ERR_INTERNO       — errore interno imprevisto
+```
+
+**File toccati:**
+- `src/app/api/automazioni/nuovo-debito/route.ts` — creato (POST, logica atomica + rollback)
+- `src/components/automazioni/NuovoDebitoWizard.tsx` — creato (wizard 590 righe)
+- `src/app/(dashboard)/controllo/page.tsx` — aggiornato (SezioneAutomazioni + import wizard)
+
+---
+
+### T-103 — Script reset-tutte-schede
+**Stato:** `🟢 Done`
+**Priorità:** Bassa
+**Dipendenze:** T-023
+
+**Descrizione:**
+Script CLI che elimina tutte le schede e tutti i documenti per tutte le anagrafiche, senza toccare le config.
+
+**Note sviluppo:**
+Richiede digitare "ELIMINA TUTTO" per conferma. Legge slug da `anagraficaconfigs` collection. Gestisce Mongoose pluralization (verifica sia `schede_{slug}` sia `schede_{slug}s`).
+
+**File toccati:**
+- `scripts/reset-tutte-schede.ts` — creato
+- `package.json` — aggiunto script `"reset:tutte-schede"`
+
+---
+
+### T-104 — Anagrafiche Portafogli e Debiti aggiornate
+**Stato:** `🟢 Done`
+**Priorità:** Alta
+**Dipendenze:** T-090
+
+**Descrizione:**
+Aggiornate le definizioni di Portafogli (7 variabili) e Debiti (12 variabili + opzione `infruttifero`) in `import-anagrafiche.ts`. Aggiunta opzione `debito` a `tipo_ricavo` nei Ricavi.
+
+**Variabili Portafogli:**
+```
+titolo (text, obbligatorio, visibileInPreview)
+sottotitolo (text)
+descrizione (text-area)
+debito_associato (reference → debiti)
+data_apertura (data)
+data_chiusura (data)
+fondi_disponibili (numbers, decimali)
+```
+
+**Variabili Debiti (12):** titolo, referente, tipo_debito (mutuo|prestito|finanziamento|infruttifero|altro), tipo_tasso, totale_addebitato, tasso_interesse, rata_mensile, importo_erogato, data_apertura, scadenza_prevista, totale_restituito, note
+
+**IMPORTANTE:** Eseguire `npm run import:anagrafiche` dal terminale Windows per applicare al DB.
+
+**File toccati:**
+- `scripts/import-anagrafiche.ts` — aggiornato Portafogli, Debiti, Ricavi (tipo_ricavo options)
+
+---
+
+## 📋 TICKET — FASE 12: BILANCIO
+
+---
+
+### T-110 — Sezione Bilancio in Sidebar
+**Stato:** `🟢 Done`
+**Priorità:** Media
+**Dipendenze:** T-031
+**Sub-README:** `docs/10-UI-LAYOUT.md`, `docs/12-BILANCIO.md`
+
+**Descrizione:**
+Nuova sezione "Bilancio" nella sidebar, con voce "Overview". La sezione è statica (hardcoded, non dal DB layout).
+
+**Criteri di accettazione:**
+- [x] `SezioneFissa` — nuovo componente nella Sidebar per sezioni statiche (non da DB)
+- [x] In modalità espansa: sezione collassabile con header "BILANCIO" e voce "Overview"
+- [x] In modalità icone: separatore + icona `BarChart2` per Overview
+- [x] Route `/bilancio/overview` con placeholder "Work in progress"
+- [x] Voce attiva evidenziata con stile brand
+
+**File toccati:**
+- `src/components/layout/Sidebar.tsx` — aggiunto import BarChart2, componente SezioneFissa, blocco Bilancio nel nav
+- `src/app/(dashboard)/bilancio/overview/page.tsx` — creato (placeholder WIP)
+
+---
+
+## 📋 NOTE TECNICHE GENERALI (sessioni di sviluppo)
+
+### ⚠️ Problema Mount Bash / Windows (CRITICO per AI)
+Il sandbox Linux monta la cartella Windows via CIFS. **Il mount è in sola-scrittura-cached**: l'Edit tool scrive correttamente su Windows, ma bash legge una versione cachata/troncata del file. Sintomi:
+- `wc -l file.ts` mostra meno righe di quanto vede il `Read` tool
+- `npx tsc` in bash riporta errori falsi positivi (file troncato → sintassi incompleta)
+- `cat -A` mostra `^@` (null bytes) in fondo ai file modificati
+
+**Soluzione:** Riscrivere sempre i file grandi via `python3 -c "with open(...,'w') as f: f.write(content)"` dentro un heredoc `<< 'PYEOF'`. Non usare heredoc bash per file TypeScript (escaping problematico). Non fidarsi degli errori TSC che vengono da bash — verificare sempre con Read tool che il file Windows sia corretto.
+
+### ⚠️ Esecuzione script npm
+Gli script `tsx` non sono eseguibili da bash (esbuild platform mismatch: node_modules compilati per win32-x64, sandbox è linux-x64). Tutti gli script `npm run *` vanno eseguiti dal **terminale Windows** dell'utente.
+
+### ✅ Verifica TSC corretta
+```bash
+# In bash, verifica SOLO i file src/ (ignora scripts/ che hanno errori preesistenti):
+npx tsc --noEmit 2>&1 | grep "src/" | grep -v "node_modules"
+```
+

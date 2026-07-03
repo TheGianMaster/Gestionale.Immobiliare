@@ -1,6 +1,7 @@
 /**
  * GET  /api/anagrafiche/[slug]/schede — lista con paginazione + ricerca
  * POST /api/anagrafiche/[slug]/schede — crea nuova scheda
+ * DELETE /api/anagrafiche/[slug]/schede — elimina bulk per ids
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -9,6 +10,43 @@ import connectDB from '@/lib/mongodb'
 import { AnagraficaConfig } from '@/models/AnagraficaConfig'
 import { getSchedaModel } from '@/models/Scheda'
 import mongoose from 'mongoose'
+
+// ——— DELETE (bulk) ———
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ slug: string }> }
+) {
+  try {
+    const session = await auth()
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Non autorizzato' }, { status: 401 })
+    }
+
+    const { slug } = await params
+    const body = await req.json()
+    const { ids } = body as { ids: string[] }
+
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return NextResponse.json({ error: 'ids deve essere un array non vuoto' }, { status: 400 })
+    }
+
+    await connectDB()
+
+    const config = await AnagraficaConfig.findOne({ slug, attiva: true }).lean()
+    if (!config) {
+      return NextResponse.json({ error: 'Anagrafica non trovata' }, { status: 404 })
+    }
+
+    const objectIds = ids.map((id) => new mongoose.Types.ObjectId(id))
+    const Scheda = await getSchedaModel(slug)
+    const result = await Scheda.deleteMany({ _id: { $in: objectIds } })
+
+    return NextResponse.json({ deleted: result.deletedCount })
+  } catch (error) {
+    console.error('[DELETE /api/anagrafiche/[slug]/schede]', error)
+    return NextResponse.json({ error: 'Errore interno del server' }, { status: 500 })
+  }
+}
 
 // ——— GET ———
 export async function GET(
@@ -32,24 +70,21 @@ export async function GET(
 
     await connectDB()
 
-    // Verifica che l'anagrafica esista
     const config = await AnagraficaConfig.findOne({ slug, attiva: true })
       .select('previewColumns')
       .lean()
 
     if (!config) {
-      return NextResponse.json({ error: `Anagrafica "${slug}" non trovata` }, { status: 404 })
+      return NextResponse.json({ error: 'Anagrafica non trovata' }, { status: 404 })
     }
 
     const Scheda = await getSchedaModel(slug)
 
-    // ——— FILTRO BASE ———
     const filtro: Record<string, unknown> = {}
 
-    // ——— RICERCA FULL-TEXT SUI PREVIEW COLUMNS ———
     if (q && config.previewColumns.length > 0) {
       filtro.$or = config.previewColumns.map((col) => ({
-        [`dati.${col}`]: { $regex: q, $options: 'i' },
+        ['dati.' + col]: { $regex: q, $options: 'i' },
       }))
     }
 
@@ -99,7 +134,7 @@ export async function POST(
 
     const config = await AnagraficaConfig.findOne({ slug, attiva: true }).lean()
     if (!config) {
-      return NextResponse.json({ error: `Anagrafica "${slug}" non trovata` }, { status: 404 })
+      return NextResponse.json({ error: 'Anagrafica non trovata' }, { status: 404 })
     }
 
     const body = await req.json()

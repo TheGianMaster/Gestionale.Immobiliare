@@ -253,3 +253,45 @@ const SearchBar = ({ onSearch }: { onSearch: (q: string) => void }) => {
 ```
 
 **IMPORTANTE:** La ricerca chiama il server (MongoDB), non filtra solo i dati già caricati. Questo assicura che la ricerca funzioni su tutto il dataset, non solo sulla pagina corrente.
+
+---
+
+## 6. BULK DELETE SCHEDE
+
+### Endpoint
+```
+DELETE /api/anagrafiche/[slug]/schede
+Content-Type: application/json
+Body: { "ids": ["<ObjectId>", "<ObjectId>", ...] }
+
+Response 200: { "deleted": <number> }
+Response 400: { "error": "ids deve essere un array non vuoto" }
+Response 404: { "error": "Anagrafica non trovata" }
+```
+
+### UI (PreviewTable)
+- Checkbox in ogni riga + "seleziona tutto" nell'header (con stato `indeterminate`)
+- `selectedIds: Set<string>` nello state
+- Bulk action bar appare se `selectedIds.size > 0`:
+  - testo: "{N} scheda/e selezionata/e"
+  - link "Deseleziona tutto"
+  - bottone "Elimina selezionate" → apre `BulkDeleteConfirmModal`
+- Riga selezionata → `backgroundColor: var(--color-brand-subtle, rgba(79,70,229,0.06))`
+- Click checkbox: `e.stopPropagation()` per non navigare alla scheda
+- Selezione azzerata al cambio query/pagina
+
+---
+
+## 7. PULSANTE + SUI CAMPI REFERENCE
+
+`ReferenceField` e `MultiReferenceField` hanno un pulsante `+` accanto all'input di ricerca.
+
+**Comportamento:** `window.open('/anagrafica/${targetSlug}/new', '_blank')`
+
+**Quando è visibile:**
+- `ReferenceField`: solo quando il campo non è valorizzato (insieme all'input di ricerca)
+- `MultiReferenceField`: sempre (l'aggiunta è addittiva)
+
+**Nota implementativa:** Il componente `NewSchedaModal` non esiste — era un import errato rimasto nei file. È stato rimosso.
+Il `+` apre direttamente una nuova scheda del browser alla pagina di creazione.
+

@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   Home, Calendar, Settings, X, ChevronRight, ChevronDown, Loader2,
-  PanelLeft, PanelLeftClose, PanelLeftOpen, Sun, Moon,
+  PanelLeft, PanelLeftClose, PanelLeftOpen, Sun, Moon, BarChart2,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { AppLogo } from '@/components/ui/AppLogo'
@@ -96,7 +96,6 @@ function Sezione({ node, collapsed, isOpen, onToggle, onClick }: {
   const visibleChildren = (node.children ?? []).filter(c => c.visible)
 
   if (collapsed) {
-    // In icon-only mode: mostra solo i figli come icone piatte
     return (
       <>
         <div className="my-2 border-t" style={{ borderColor: 'var(--color-border)' }} />
@@ -109,7 +108,6 @@ function Sezione({ node, collapsed, isOpen, onToggle, onClick }: {
 
   return (
     <div>
-      {/* Intestazione sezione */}
       <button
         onClick={onToggle}
         className="w-full flex items-center gap-2 px-3 py-1.5 text-left rounded-lg transition-colors hover:bg-surface-hover mt-3 mb-0.5"
@@ -127,9 +125,53 @@ function Sezione({ node, collapsed, isOpen, onToggle, onClick }: {
         />
       </button>
 
-      {/* Figli */}
       {isOpen && visibleChildren.map(child => (
         <VoceAnagrafica key={child.id} node={child} collapsed={false} onClick={onClick} />
+      ))}
+    </div>
+  )
+}
+
+// ── Sezione statica (non da DB) ───────────────────────────────
+
+function SezioneFissa({ label, collapsed, items, onNavClick }: {
+  label: string
+  collapsed: boolean
+  items: { href: string; label: string; icon: React.ElementType }[]
+  onNavClick?: () => void
+}) {
+  const [open, setOpen] = useState(true)
+
+  if (collapsed) {
+    return (
+      <>
+        <div className="my-2 border-t" style={{ borderColor: 'var(--color-border)' }} />
+        {items.map(item => (
+          <VoceNav key={item.href} href={item.href} label={item.label} icona={item.icon} collapsed={true} onClick={onNavClick} />
+        ))}
+      </>
+    )
+  }
+
+  return (
+    <div>
+      <button
+        onClick={() => setOpen(v => !v)}
+        className="w-full flex items-center gap-2 px-3 py-1.5 text-left rounded-lg transition-colors hover:bg-surface-hover mt-3 mb-0.5"
+      >
+        <span
+          className="text-[11px] font-semibold uppercase tracking-wider flex-1 truncate"
+          style={{ color: 'var(--color-text-muted)' }}
+        >
+          {label}
+        </span>
+        <ChevronDown
+          className={cn('w-3 h-3 transition-transform shrink-0', !open && '-rotate-90')}
+          style={{ color: 'var(--color-text-muted)' }}
+        />
+      </button>
+      {open && items.map(item => (
+        <VoceNav key={item.href} href={item.href} label={item.label} icona={item.icon} collapsed={false} onClick={onNavClick} />
       ))}
     </div>
   )
@@ -198,7 +240,6 @@ function SidebarContent({ ruolo, layoutNodes, loading, collapsed, mode, onModeCh
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({})
   const settingsRef = useRef<HTMLDivElement>(null)
 
-  // Inizializza stato sezioni da initiallyCollapsed
   useEffect(() => {
     const init: Record<string, boolean> = {}
     for (const node of layoutNodes) {
@@ -215,7 +256,6 @@ function SidebarContent({ ruolo, layoutNodes, loading, collapsed, mode, onModeCh
   const toggleSection = (id: string) =>
     setOpenSections(prev => ({ ...prev, [id]: !prev[id] }))
 
-  // Chiudi impostazioni cliccando fuori
   useEffect(() => {
     if (!showSettings) return
     const h = (e: MouseEvent) => {
@@ -226,7 +266,6 @@ function SidebarContent({ ruolo, layoutNodes, loading, collapsed, mode, onModeCh
     return () => document.removeEventListener('mousedown', h)
   }, [showSettings])
 
-  // Flatten per modal collapsed: tutti i nodi visibili come icone piatte
   const flatNodes: ResolvedNode[] = layoutNodes.flatMap(n => {
     if (!n.visible) return []
     if (n.type === 'separator') return []
@@ -268,8 +307,7 @@ function SidebarContent({ ruolo, layoutNodes, loading, collapsed, mode, onModeCh
 
         {!loading && (
           collapsed
-            ? /* Icon-only: lista piatta */
-              flatNodes.map(node => {
+            ? flatNodes.map(node => {
                 if (node.type === 'builtin') {
                   const icons: Record<string, React.ElementType> = { dashboard: Home, calendario: Calendar }
                   const hrefs: Record<string, string> = { dashboard: '/home', calendario: '/calendario' }
@@ -281,8 +319,7 @@ function SidebarContent({ ruolo, layoutNodes, loading, collapsed, mode, onModeCh
                 }
                 return null
               })
-            : /* Full: rendering strutturato */
-              layoutNodes.map(node => {
+            : layoutNodes.map(node => {
                 if (!node.visible) return null
                 if (node.type === 'separator') return (
                   <div key={node.id} className="my-2 border-t" style={{ borderColor: 'var(--color-border)' }} />
@@ -308,6 +345,16 @@ function SidebarContent({ ruolo, layoutNodes, loading, collapsed, mode, onModeCh
                 }
                 return null
               })
+        )}
+
+        {/* Bilancio — sezione statica */}
+        {!loading && (
+          <SezioneFissa
+            label="Bilancio"
+            collapsed={collapsed}
+            items={[{ href: '/bilancio/overview', label: 'Overview', icon: BarChart2 }]}
+            onNavClick={onClose}
+          />
         )}
 
         {/* Separatore e Pannello Controllo (sempre in fondo per admin) */}
@@ -360,7 +407,6 @@ export function Sidebar({ ruolo }: SidebarProps) {
 
   const isCollapsed = mode === 'icons' || (mode === 'hover' && !isHovered)
 
-  // Persistenza modalità e tema
   useEffect(() => {
     const m = localStorage.getItem('sidebar-mode') as SidebarMode | null
     const t = localStorage.getItem('theme') as Theme | null
@@ -378,7 +424,6 @@ export function Sidebar({ ruolo }: SidebarProps) {
     localStorage.setItem('theme', theme)
   }, [theme])
 
-  // Toggle mobile
   const handleToggle = useCallback(() => setIsOpen(v => !v), [])
   useEffect(() => {
     window.addEventListener('sidebar:toggle', handleToggle)
@@ -391,7 +436,6 @@ export function Sidebar({ ruolo }: SidebarProps) {
     return () => window.removeEventListener('resize', onResize)
   }, [])
 
-  // Fetch layout
   useEffect(() => {
     fetch('/api/controllo/layout')
       .then(r => r.json())
@@ -399,7 +443,6 @@ export function Sidebar({ ruolo }: SidebarProps) {
         if (Array.isArray(data.resolved)) setLayoutNodes(data.resolved)
       })
       .catch(() => {
-        // Fallback: fetch solo anagrafiche con struttura hardcoded
         fetch('/api/anagrafiche')
           .then(r => r.json())
           .then(data => {
