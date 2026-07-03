@@ -9,6 +9,7 @@ import { auth } from '@/lib/auth'
 import connectDB from '@/lib/mongodb'
 import { AnagraficaConfig } from '@/models/AnagraficaConfig'
 import { getSchedaModel } from '@/models/Scheda'
+import { ricalcolaImpattoScheda } from '@/lib/bilancio/ricalcolaFondiPortafoglio'
 import mongoose from 'mongoose'
 
 type RouteParams = { params: Promise<{ slug: string; id: string }> }
@@ -81,6 +82,10 @@ export async function PUT(
     const userId = new mongoose.Types.ObjectId(session.user.id)
     const Scheda = await getSchedaModel(slug)
 
+    // Bilancio (T-114): cattura i dati PRIMA della modifica, per poter ricalcolare
+    // sia i portafogli/debiti referenziati prima sia quelli dopo (se cambiati).
+    const schedaPrima = await Scheda.findOne({ _id: id }).lean()
+
     const aggiornamento: Record<string, unknown> = {
       modificataDa: userId,
       $inc: { versione: 1 },
@@ -97,6 +102,12 @@ export async function PUT(
     if (!scheda) {
       return NextResponse.json({ error: 'Scheda non trovata' }, { status: 404 })
     }
+
+    await ricalcolaImpattoScheda(
+      slug,
+      schedaPrima?.dati as Record<string, unknown> | undefined,
+      scheda.dati as Record<string, unknown>
+    )
 
     return NextResponse.json({ data: scheda })
   } catch (error) {
@@ -137,6 +148,9 @@ export async function DELETE(
     if (!scheda) {
       return NextResponse.json({ error: 'Scheda non trovata' }, { status: 404 })
     }
+
+    // Bilancio (T-114): ricalcola i portafogli/debiti che questa scheda referenziava.
+    await ricalcolaImpattoScheda(slug, scheda.dati as Record<string, unknown>, null)
 
     return NextResponse.json({ success: true })
   } catch (error) {

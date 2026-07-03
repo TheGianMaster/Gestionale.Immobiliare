@@ -1,6 +1,7 @@
 /**
  * scripts/import-anagrafiche.ts
- * Importa le 9 anagrafiche definite dall'Excel nelle 9 config del gestionale.
+ * Importa le anagrafiche definite in questo file (9 originarie dall'Excel + 'trasferimenti'
+ * aggiunta per il modulo Bilancio, T-113) nelle rispettive config del gestionale.
  *
  * USO: npm run import:anagrafiche
  * Opzioni:
@@ -236,6 +237,30 @@ const ANAGRAFICHE: AnagraficaInput[] = [
       { slug: 'titolo', nome: 'Titolo', tipo: 'text', obbligatorio: true, visibileInPreview: true, ordine: 0 },
     ],
   },
+
+  // 10. TRASFERIMENTI (Bilancio — T-112/T-113, vedi docs/12-BILANCIO.md §6.2)
+  {
+    slug: 'trasferimenti', nome: 'Trasferimenti', icona: 'ArrowLeftRight', colore: '#3B82F6', ordine: 10,
+    previewColumns: ['titolo'],
+    variabili: [
+      { slug: 'titolo',              nome: 'Titolo',               tipo: 'text',      obbligatorio: true,  visibileInPreview: true, ordine: 0,
+        descrizione: 'Generato automaticamente da "Sposta fondi" (es. "Portafoglio A → Portafoglio B, C")' },
+      { slug: 'portafoglio_origine', nome: 'Portafoglio di origine', tipo: 'reference', obbligatorio: true, ordine: 1, referenceTo: 'portafogli' },
+      {
+        slug: 'destinazioni', nome: 'Destinazioni', tipo: 'line-items',
+        obbligatorio: true, ordine: 2,
+        descrizione: 'Aggiungi una riga per ogni portafoglio di destinazione con il relativo importo',
+        colonne: [
+          { slug: 'portafoglio', nome: 'Portafoglio', tipo: 'reference', referenceTo: 'portafogli' },
+          { slug: 'importo',     nome: 'Importo',     tipo: 'numbers',   decimali: true },
+        ],
+      },
+      { slug: 'importo_totale',      nome: 'Importo totale',        tipo: 'numbers',   obbligatorio: true,  ordine: 3, decimali: true,
+        descrizione: 'Deve coincidere con la somma degli importi in "Destinazioni" (validato lato API in T-115)' },
+      { slug: 'data',                 nome: 'Data',                  tipo: 'data',       obbligatorio: true,  ordine: 4 },
+      { slug: 'note',                 nome: 'Note',                  tipo: 'text-area',  obbligatorio: false, ordine: 5 },
+    ],
+  },
 ]
 
 // ── Connessione ───────────────────────────────────────────────────────────────
@@ -307,8 +332,8 @@ async function main() {
   const { Variabile, AnagraficaConfig, SelectOption } = buildModels(conn)
 
   // Ottieni slug esistenti
-  const esistenti = await AnagraficaConfig.find({}, { slug: 1 }).lean()
-  const slugEsistenti = new Set(esistenti.map((e: { slug: string }) => e.slug))
+  const esistenti = await AnagraficaConfig.find({}, { slug: 1 }).lean() as unknown as { slug: string }[]
+  const slugEsistenti = new Set(esistenti.map(e => e.slug))
   const slugNuovi     = new Set(ANAGRAFICHE.map(a => a.slug))
 
   // ELIMINA EXTRA

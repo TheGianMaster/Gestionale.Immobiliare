@@ -9,6 +9,7 @@ import { auth } from '@/lib/auth'
 import connectDB from '@/lib/mongodb'
 import { AnagraficaConfig } from '@/models/AnagraficaConfig'
 import { getSchedaModel } from '@/models/Scheda'
+import { ricalcolaImpattoScheda } from '@/lib/bilancio/ricalcolaFondiPortafoglio'
 import mongoose from 'mongoose'
 
 // ——— DELETE (bulk) ———
@@ -39,7 +40,16 @@ export async function DELETE(
 
     const objectIds = ids.map((id) => new mongoose.Types.ObjectId(id))
     const Scheda = await getSchedaModel(slug)
+
+    // Bilancio (T-114): cattura i dati PRIMA di eliminare, per poter ricalcolare
+    // i portafogli/debiti coinvolti se questa e' un'anagrafica Ricavi/Spese/Trasferimenti.
+    const daEliminare = await Scheda.find({ _id: { $in: objectIds } }).lean()
+
     const result = await Scheda.deleteMany({ _id: { $in: objectIds } })
+
+    for (const doc of daEliminare) {
+      await ricalcolaImpattoScheda(slug, doc.dati as Record<string, unknown>, null)
+    }
 
     return NextResponse.json({ deleted: result.deletedCount })
   } catch (error) {
@@ -151,6 +161,10 @@ export async function POST(
       modificataDa: userId,
       versione:     1,
     })
+
+    // Bilancio (T-114): se questa scheda referenzia un Portafoglio (Ricavi/Spese/
+    // Trasferimenti), ricalcola i saldi coinvolti. No-op per le altre anagrafiche.
+    await ricalcolaImpattoScheda(slug, null, scheda.dati as Record<string, unknown>)
 
     return NextResponse.json({ data: scheda }, { status: 201 })
   } catch (error) {

@@ -50,6 +50,19 @@ export function formatData(date: Date | string): string {
 }
 
 /**
+ * Formatta un importo in euro, locale it-IT.
+ * Esempio: 1234.5 → "1.234,50 €"
+ */
+export function formatEuro(value: number): string {
+  return new Intl.NumberFormat('it-IT', {
+    style: 'currency',
+    currency: 'EUR',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value)
+}
+
+/**
  * Formatta bytes in formato leggibile.
  * Esempio: 1234567 → "1.2 MB"
  */

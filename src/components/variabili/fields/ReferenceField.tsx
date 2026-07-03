@@ -24,8 +24,8 @@ function useSearch(targetSlug: string | undefined, query: string, open: boolean)
       fetch(`/api/anagrafiche/${targetSlug}/schede?limit=8${q}`)
         .then(r => r.json())
         .then(data => {
-          if (Array.isArray(data.schede)) {
-            setResults(data.schede.map((s: { _id: string; dati?: Record<string,unknown> }) => ({
+          if (Array.isArray(data.data)) {
+            setResults(data.data.map((s: { _id: string; dati?: Record<string,unknown> }) => ({
               id: s._id,
               label: Object.values(s.dati ?? {})[0] ? String(Object.values(s.dati ?? {})[0]) : s._id,
             })))

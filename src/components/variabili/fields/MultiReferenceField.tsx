@@ -30,8 +30,8 @@ export function MultiReferenceField({ variabile, valore, mode, onChange, error }
       fetch(`/api/anagrafiche/${targetSlug}/schede?limit=8${q}`)
         .then(r => r.json())
         .then(data => {
-          if (Array.isArray(data.schede)) {
-            setResults(data.schede
+          if (Array.isArray(data.data)) {
+            setResults(data.data
               .filter((s: { _id: string }) => !vals.some(v => v.id === s._id))
               .map((s: { _id: string; dati?: Record<string,unknown> }) => ({
                 id: s._id,

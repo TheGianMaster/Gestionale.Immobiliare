@@ -22,6 +22,7 @@ import { auth } from '@/lib/auth'
 import connectDB from '@/lib/mongodb'
 import { AnagraficaConfig } from '@/models/AnagraficaConfig'
 import { getSchedaModel } from '@/models/Scheda'
+import { ricalcolaFondiPortafoglio } from '@/lib/bilancio/ricalcolaFondiPortafoglio'
 import mongoose from 'mongoose'
 
 function errore(message: string, codice: string, status = 400, extra?: Record<string, unknown>) {
@@ -195,6 +196,20 @@ export async function POST(req: NextRequest) {
       }, { status: 500 })
     }
 
+    // ── 4. Ricalcola fondi_disponibili del portafogli appena creato ──────────────
+    // (T-114/T-111 fix: questa route crea Ricavi/Portafogli direttamente via
+    // Mongoose, bypassando le route generiche /api/anagrafiche/[slug]/schede a cui
+    // e' agganciato il ricalcolo automatico — va richiamato esplicitamente qui.
+    // Best-effort: se fallisce, il debito/portafogli/ricavo restano comunque
+    // creati correttamente; l'utente puo' riconciliare con "npm run ricalcola:fondi".
+    let avvisoRicalcolo: string | undefined
+    try {
+      await ricalcolaFondiPortafoglio(String(portafogli._id))
+    } catch (e) {
+      console.warn('[POST /api/automazioni/nuovo-debito] Ricalcolo fondi fallito:', e)
+      avvisoRicalcolo = 'Debito creato correttamente, ma il ricalcolo dei fondi disponibili e\' fallito. Esegui "npm run ricalcola:fondi" per riconciliare.'
+    }
+
     return NextResponse.json({
       success: true,
       message: `Debito "${titoloDebito}" creato con successo insieme al portafogli e al ricavo di apertura.`,
@@ -203,6 +218,7 @@ export async function POST(req: NextRequest) {
         portafogli: String(portafogli._id),
         ricavo:     String(ricavo._id),
       },
+      ...(avvisoRicalcolo ? { avviso: avvisoRicalcolo } : {}),
     })
 
   } catch (e) {

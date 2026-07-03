@@ -16,7 +16,9 @@
     "reset:anagrafiche": "tsx scripts/reset-anagrafiche.ts",
     "reset:schede": "tsx scripts/reset-schede.ts",
     "reset:tutte-schede": "tsx scripts/reset-tutte-schede.ts",
-    "import:anagrafiche": "tsx scripts/import-anagrafiche.ts"
+    "import:anagrafiche": "tsx scripts/import-anagrafiche.ts",
+    "ricalcola:fondi": "tsx scripts/ricalcola-fondi.ts",
+    "fix:spese-provenienza": "tsx scripts/fix-spese-senza-portafoglio.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.600.0",
